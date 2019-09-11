@@ -99,6 +99,45 @@ defmodule BadgerApi.Accounts do
       %Ecto.Changeset{source: %Writer{}}
 
   """
+
+  def authenticate_writer(%{identifier: identifier, password: password}) do
+   if Regex.match?(~r/(\@[a-zA-Z0-9_%]*)/, identifier) do
+    find_by_username(identifier, password)
+   else if Regex.match?(identifier, ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/) do
+    find_by_email(identifier, password)
+   else
+    {:error, "Email or username not present in database"}
+
+   end
+  end
+
+
+
+  end
+
+  defp find_by_username(username, password) do
+    query = from(writer in Writer, where: writer.username == ^username)
+    query |> Repo.one() |> verify_password(password)
+  end
+
+  defp find_by_email(email, password) do
+    from(writer in Writer, where: writer.email == ^email) |> Repo.one |> verify_password(password)
+  end
+
+  defp verify_password(nil, _) do
+    Bcrypt.no_user_verify()
+    {:error, "Wrong username, email or password"}
+  end
+
+  defp verify_password(writer, password) do
+    if Bcrypt.verify_pass(password, writer.password_hash) do
+      {:ok, writer}
+    else
+      {:error, "Wrong username, email or password"}
+
+    end
+end
+
   def change_writer(%Writer{} = writer) do
     Writer.changeset(writer, %{})
   end

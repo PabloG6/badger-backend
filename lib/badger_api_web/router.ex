@@ -3,13 +3,15 @@ defmodule BadgerApiWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/api", BadgerApiWeb do
     pipe_through :api
-
     resources "/topics", TopicsController, except: [:new, :edit]
-    get "/topics/all", TopicsController, :index
+    resources "/writers", WritersController, except: [:new, :edit]
+    post "/login", WritersController, :login
+    resources "/stories", StoriesController, except: [:new, :edit]
 
   end
 end

@@ -13,12 +13,22 @@ defmodule BadgerApiWeb.FallbackController do
     |> render(:"404")
   end
 
-  def call(conn, {:error, %Ecto.Changeset{}}) do
+  def call(conn, {:error, %Ecto.Changeset{errors: _errors} = changeset}) do
+
     conn
       |> put_status(:unprocessable_entity)
-      |> put_view(BadgerApiWeb.ErrorView)
-      |> render(:"422")
+      |> put_view(BadgerApiWeb.ChangesetView)
+      |> render(:error, changeset: changeset)
   end
+
+  def call(conn, %{message: message}) do
+    conn
+      |> put_status(:unauthorized)
+      |> put_view(BadgerApiWeb.ErrorView)
+      |> render(:"401", message: message)
+  end
+
+
 
 
 

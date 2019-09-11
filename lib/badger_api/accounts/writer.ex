@@ -1,7 +1,7 @@
 defmodule BadgerApi.Accounts.Writer do
   use Ecto.Schema
   import Ecto.Changeset
-
+  alias BadgerApi.Publications.Stories
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "writers" do
@@ -11,7 +11,7 @@ defmodule BadgerApi.Accounts.Writer do
     field :username, :string
     field :password, :string, virtual: true
     field :password_hash, :string
-
+    has_many :stories, Stories
     timestamps()
   end
 
@@ -25,7 +25,7 @@ defmodule BadgerApi.Accounts.Writer do
     |> validate_format(:username, ~r/(\@[a-zA-Z0-9_%]*)/)
     |> unique_constraint(:username)
     |> unique_constraint(:email)
-    |>hash_password()
+    |> hash_password()
   end
 
   defp hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
