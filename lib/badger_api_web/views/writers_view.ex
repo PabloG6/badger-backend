@@ -18,5 +18,16 @@ defmodule BadgerApiWeb.WritersView do
       }
   end
 
+  def render("login.json", %{writers: writer, token: token}) do
+    %{data: %{
+      id: writer.id,
+      username: writer.username,
+      name: writer.name,
+      email: writer.email,
+      token: token,
+
+    }}
+  end
+
 
 end

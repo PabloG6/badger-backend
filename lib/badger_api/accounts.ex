@@ -101,9 +101,9 @@ defmodule BadgerApi.Accounts do
   """
 
   def authenticate_writer(%{identifier: identifier, password: password}) do
-   if Regex.match?(~r/(\@[a-zA-Z0-9_%]*)/, identifier) do
+   if Regex.match?(~r/(?<=^|(?<=[^a-zA-Z0-9-_.]))@([A-Za-z]+[A-Za-z0-9-_]+)/, identifier) do
     find_by_username(identifier, password)
-   else if Regex.match?(identifier, ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/) do
+   else if Regex.match?(~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/, identifier) do
     find_by_email(identifier, password)
    else
     {:error, "Email or username not present in database"}

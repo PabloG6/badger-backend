@@ -3,7 +3,7 @@ defmodule BadgerApiWeb.TopicsControllerTest do
 
   alias BadgerApi.Badge
   alias BadgerApi.Badge.Topics
-
+  alias BadgerApi.Accounts
   @create_attrs %{
     description: "some description",
     title: "some title"
@@ -13,14 +13,23 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     title: "some updated title"
   }
   @invalid_attrs %{title: nil, description: nil}
-
+  @create_writer_attrs %{
+    email: "some@email.com",
+    name: "some name",
+    password: "some password_hash",
+    username: "@someusername"
+  }
   def fixture(:topics) do
     {:ok, topics} = Badge.create_topics(@create_attrs)
     topics
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    {:ok, writer} = Accounts.create_writer(@create_writer_attrs)
+    {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
+     conn = put_req_header(conn, "accept", "application/json") |> put_req_header("authorization", "bearer: " <> token)
+
+    {:ok, conn: conn}
   end
 
   describe "index" do

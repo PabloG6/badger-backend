@@ -39,7 +39,10 @@ defmodule BadgerApiWeb.StoriesControllerTest do
 
   setup %{conn: conn} do
     {:ok, writer} = Accounts.create_writer(@create_writer_attrs)
-    {:ok, conn: put_req_header(conn, "accept", "application/json"), writer: writer}
+    {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
+     conn = put_req_header(conn, "accept", "application/json") |> put_req_header("authorization", "bearer: " <> token)
+
+    {:ok, conn: conn, writer: writer}
   end
 
   describe "index" do

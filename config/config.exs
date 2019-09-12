@@ -7,6 +7,10 @@
 # General application configuration
 use Mix.Config
 
+config :badger_api, BadgerApi.Auth.Guardian,
+issuer: "badger_api",
+secret_key: "76vUtNm17w3oL2DcL1qj7ky5zZljwxqjn/A3EY6K7tJtargfOUqu5fCjPFEkqbAq"
+
 config :badger_api,
   ecto_repos: [BadgerApi.Repo]
 

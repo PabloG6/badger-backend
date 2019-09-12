@@ -24,11 +24,15 @@ defmodule BadgerApiWeb.WritersControllerTest do
   end
 
   setup %{conn: conn} do
+
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   describe "index" do
+
     test "lists all writer", %{conn: conn} do
+
+
       conn = get(conn, Routes.writers_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
     end
@@ -36,6 +40,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
   describe "create writers" do
     test "renders writers when data is valid", %{conn: conn} do
+
       conn = post(conn, Routes.writers_path(conn, :create), writers: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
@@ -54,9 +59,11 @@ defmodule BadgerApiWeb.WritersControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
-  describe "test sign in for writers" do
+  describe "account session for writers" do
     setup [:create_writers]
     test "renders sign in page when writer uses their username ", %{conn: conn, writers: %Writer{id: id} = writers} do
+
+
       conn = post(conn, Routes.writers_path(conn, :login), identifier: writers.username, password: writers.password)
       assert %{"id" => ^id,
                 "email" => "some@email.com",
@@ -64,12 +71,24 @@ defmodule BadgerApiWeb.WritersControllerTest do
                 "username" => "@someusername",
               } = json_response(conn, 200)["data"]
     end
+
+    test "renders sign in page when writers uses their email", %{conn: conn, writers: %Writer{id: id} = writers} do
+      conn = post(conn, Routes.writers_path(conn, :login), identifier: writers.email, password: writers.password)
+      assert %{"id" => ^id,
+                "email" => "some@email.com",
+                "name" => "some name",
+                "username" => "@someusername",
+              } = json_response(conn, 200)["data"]
+
+    end
   end
 
   describe "update writers" do
     setup [:create_writers]
 
     test "renders writers when data is valid", %{conn: conn, writers: %Writer{id: id} = writers} do
+      {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writers)
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
       conn = put(conn, Routes.writers_path(conn, :update, writers), writers: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
@@ -84,6 +103,8 @@ defmodule BadgerApiWeb.WritersControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, writers: writers} do
+      {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writers)
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
       conn = put(conn, Routes.writers_path(conn, :update, writers), writers: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
@@ -93,6 +114,9 @@ defmodule BadgerApiWeb.WritersControllerTest do
     setup [:create_writers]
 
     test "deletes chosen writers", %{conn: conn, writers: writers} do
+      {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writers)
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
+
       conn = delete(conn, Routes.writers_path(conn, :delete, writers))
       assert response(conn, 204)
 
