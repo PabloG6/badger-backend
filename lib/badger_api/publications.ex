@@ -49,6 +49,7 @@ defmodule BadgerApi.Publications do
 
   """
 
+
   def create_stories(attrs \\ %{}) do
     %Stories{}
     |> Stories.changeset(attrs)
@@ -56,6 +57,8 @@ defmodule BadgerApi.Publications do
 
 
   end
+
+
   @doc """
   Updates a stories.
 
@@ -69,6 +72,7 @@ defmodule BadgerApi.Publications do
 
   """
   def update_stories(%Stories{} = stories, attrs) do
+
     stories
     |> Stories.changeset(attrs)
     |> Repo.update()

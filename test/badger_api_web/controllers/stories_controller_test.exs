@@ -23,6 +23,12 @@ defmodule BadgerApiWeb.StoriesControllerTest do
     username: "@someusername"
   }
 
+  @updated_writer_attrs %{
+    email: "updated@email.com",
+    name: "updated name",
+    password: "some password_hash",
+    username: "@updatedusername",
+  }
 
 
   @invalid_attrs %{body: nil, description: nil, title: nil}
@@ -54,8 +60,8 @@ defmodule BadgerApiWeb.StoriesControllerTest do
 
 
   describe "create stories" do
-    test "renders stories when data is valid", %{conn: conn, writer: writer} do
-      conn = post(conn, Routes.stories_path(conn, :create), stories: create_valid_attrs(writer, @create_attrs))
+    test "renders stories when data is valid", %{conn: conn} do
+      conn = post(conn, Routes.stories_path(conn, :create), stories:  @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, Routes.stories_path(conn, :show, id))
@@ -96,6 +102,16 @@ defmodule BadgerApiWeb.StoriesControllerTest do
       conn = put(conn, Routes.stories_path(conn, :update, stories), stories: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+    test "renders errors when a different user is logged in",%{conn: conn, stories: stories} do
+      {:ok, writer} = Accounts.create_writer(@updated_writer_attrs)
+      {:ok, token, _} = writer |> BadgerApi.Auth.Guardian.encode_and_sign
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
+      conn = put(conn, Routes.stories_path(conn, :update, stories), stories: @update_attrs)
+
+      assert %{"detail" =>
+      "You're not authorized to update this post"} = json_response(conn, 401)["errors"]
+    end
   end
 
   describe "delete stories" do
@@ -108,6 +124,16 @@ defmodule BadgerApiWeb.StoriesControllerTest do
       assert_error_sent 404, fn ->
         get(conn, Routes.stories_path(conn, :show, stories))
       end
+    end
+
+    test "delete story when a different user is logged in",%{conn: conn, stories: stories} do
+      {:ok, writer} = Accounts.create_writer(@updated_writer_attrs)
+      {:ok, token, _} = writer |> BadgerApi.Auth.Guardian.encode_and_sign
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
+      conn = put(conn, Routes.stories_path(conn, :update, stories), stories: @update_attrs)
+
+      assert response(conn, 401)
+
     end
   end
 

@@ -53,7 +53,7 @@ defmodule BadgerApiWeb.WritersController do
     else
       {:error, message} -> conn |> put_status(:unauthorized)
                           |> put_view(BadgerApiWeb.ErrorView)
-                          |> render(:"404", message: message)
+                          |> render(:"401", message: message)
 
     end
   end

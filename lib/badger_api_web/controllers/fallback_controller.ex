@@ -13,6 +13,24 @@ defmodule BadgerApiWeb.FallbackController do
     |> render(:"404")
   end
 
+
+  def call(conn, {:error, :unauthorized_update_story}) do
+
+    conn |> put_status(:unauthorized)
+    |> put_view(BadgerApiWeb.ErrorView)
+    |> render(:"401", message: "You're not authorized to update this post")
+  end
+
+
+  def call(conn, {:error, :unauthorized_delete_story}) do
+
+    conn |> put_status(:unauthorized)
+    |> put_view(BadgerApiWeb.ErrorView)
+    |> render(:"401", message: "You're not authorized to delete this post")
+  end
+
+
+
   def call(conn, {:error, %Ecto.Changeset{errors: _errors} = changeset}) do
 
     conn
