@@ -38,8 +38,7 @@ defmodule BadgerApiWeb.StoriesController do
     writer = Guardian.Plug.current_resource(conn)
 
     stories = Publications.get_stories!(id)
-    IO.puts writer.id
-    IO.puts stories.writer_id
+
 
 
     with true <- writer.id == stories.writer_id,

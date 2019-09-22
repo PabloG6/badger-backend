@@ -42,14 +42,14 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   describe "create topics" do
     test "renders topics when data is valid", %{conn: conn} do
       conn = post(conn, Routes.topics_path(conn, :create), topics: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      assert %{"slug" => slug, "id" => id} = json_response(conn, 201)["data"]
 
-      conn = get(conn, Routes.topics_path(conn, :show, id))
+      conn = get(conn, Routes.topics_path(conn, :show, slug))
 
       assert %{
                "id" => id,
                "description" => "some description",
-               "title" => "some-title"
+               "title" => "some title"
              } = json_response(conn, 200)["data"]
     end
 
@@ -62,16 +62,17 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   describe "update topics" do
     setup [:create_topics]
 
-    test "renders topics when data is valid", %{conn: conn, topics: %Topics{id: id} = topics} do
+    test "renders topics when data is valid", %{conn: conn, topics: %Topics{slug: slug, id: id} = topics} do
       conn = put(conn, Routes.topics_path(conn, :update, topics), topics: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      assert %{"slug" => ^slug, "id" => ^id} = json_response(conn, 200)["data"]
 
-      conn = get(conn, Routes.topics_path(conn, :show, id))
+      conn = get(conn, Routes.topics_path(conn, :show, slug))
 
       assert %{
                "id" => id,
                "description" => "some updated description",
-               "title" => "some updated title"
+               "title" => "some updated title",
+               "slug" => slug
              } = json_response(conn, 200)["data"]
     end
 

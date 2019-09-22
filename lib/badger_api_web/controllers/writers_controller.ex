@@ -1,9 +1,10 @@
 defmodule BadgerApiWeb.WritersController do
   use BadgerApiWeb, :controller
 
-  alias BadgerApi.Accounts
-  alias BadgerApi.Accounts.Writer
 
+  alias BadgerApi.Accounts.Writer
+  alias BadgerApi.Auth
+  alias BadgerApi.Accounts
   action_fallback BadgerApiWeb.FallbackController
 
   def index(conn, _params) do
@@ -42,6 +43,14 @@ defmodule BadgerApiWeb.WritersController do
     end
   end
 
+  def signup(conn, %{"writers" => writer_params}) do
+    with {:ok, %Writer{} = writer} <- Accounts.create_writer(writer_params) do
+      conn
+      |> put_status(:created)
+      |>login_reply(writer)
+
+    end
+  end
 
   def login(conn, %{"identifier" => identifier, "password" => password}) do
     with {:ok, writer} <- BadgerApi.Accounts.authenticate_writer(%{identifier: identifier, password: password}) do
@@ -57,6 +66,7 @@ defmodule BadgerApiWeb.WritersController do
 
     end
   end
+
 
   defp login_reply(conn, writer) do
     {:ok, token, _claims} = BadgerApi.Auth.Guardian.encode_and_sign(writer)

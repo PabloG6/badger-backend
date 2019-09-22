@@ -15,6 +15,7 @@ defmodule BadgerApiWeb.WritersView do
       username: writer.username,
       name: writer.name,
       email: writer.email,
+
       }
   end
 

@@ -32,8 +32,9 @@ defmodule BadgerApi.BadgeTest do
     test "create_topics/1 with valid data creates a topics" do
 
       assert {:ok, %Topics{} = topics} = Badge.create_topics(@valid_attrs)
+      IO.inspect topics
       assert topics.description == "some description"
-      assert topics.title == String.trim("some title", " ") |> String.replace(" ", "-")
+      assert topics.title == "some title"
     end
 
     test "create_topics/1 with invalid data returns error changeset" do

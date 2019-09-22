@@ -37,7 +37,8 @@ defmodule BadgerApi.Badge do
   """
   def get_topics!(id), do: Repo.get!(Topics, id)
 
-
+  def get_topics_by_slug!(slug), do: Repo.get_by!(Topics, slug: slug)
+  def get_topics_by_slug(slug), do: Repo.get_by(Topics, slug: slug)
 
 
 
@@ -56,35 +57,10 @@ defmodule BadgerApi.Badge do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_topics(topics \\ %{})
-
-  def create_topics(%{"title" => nil, "description" => _description} = topics) do
-
+  def create_topics(topics \\ %{}) do
     Topics.changeset(%Topics{}, topics) |> Repo.insert
+
   end
-  def create_topics(%{title: nil, description: _description} = topics) do
-
-    Topics.changeset(%Topics{}, topics) |> Repo.insert
-  end
-
-
-  def create_topics( %{"title" => title, "description" => _description} = topics) do
-
-    changed_attrs = %{topics | "title" => title
-    |> String.trim()
-    |> String.replace(" ", "-")
-    |> String.downcase }
-    Topics.changeset(%Topics{}, changed_attrs) |> Repo.insert
-  end
-
-  def create_topics(%{title: title, description: _description} = topics) do
-    changed_attrs = %{topics | title: title
-    |> String.trim()
-    |> String.replace(" ", "-")
-    |> String.downcase}
-    Topics.changeset(%Topics{}, changed_attrs) |> Repo.insert
-  end
-
 
   @doc """
   Updates a topics.
@@ -101,7 +77,7 @@ defmodule BadgerApi.Badge do
   def update_topics(%Topics{} = topics, attrs) do
     topics
     |> Topics.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update
   end
 
   @doc """
@@ -133,9 +109,7 @@ defmodule BadgerApi.Badge do
     Topics.changeset(topics, %{})
   end
 
-  def get_topic_stories(_title) do
-    Repo.all(Topics)
-  end
+
 
 
 end

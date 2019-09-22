@@ -17,8 +17,11 @@ defmodule BadgerApi.Accounts do
       [%Writer{}, ...]
 
   """
+
+  @username_verification ~r/(?<=^|(?<=[^a-zA-Z0-9-_.]))@([A-Za-z]+[A-Za-z0-9-_]+)/
+  @email_verification ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
   def list_writers do
-    Repo.all(Writer)
+    Repo.all(Writer) |> Repo.preload(:interests)
   end
 
 
@@ -36,7 +39,19 @@ defmodule BadgerApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_writer!(id), do: Repo.get!(Writer, id)
+  def get_writer!(id), do: Repo.get!(Writer, id) |> Repo.preload(:interests)
+  def get_writer(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
+
+  @doc """
+    returns the profile of the writer
+    Raises `Ecto.NoResultsError` if the writer does not exist
+    ## Examples
+    iex> get_writer_profile!(123)
+    %Writer{}
+  """
+  def get_writer_profile!(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
+  def get_writer_profile(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
+
 
   @doc """
   Creates a writer.
@@ -90,20 +105,11 @@ defmodule BadgerApi.Accounts do
     Repo.delete(writer)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking writer changes.
-
-  ## Examples
-
-      iex> change_writer(writer)
-      %Ecto.Changeset{source: %Writer{}}
-
-  """
 
   def authenticate_writer(%{identifier: identifier, password: password}) do
-   if Regex.match?(~r/(?<=^|(?<=[^a-zA-Z0-9-_.]))@([A-Za-z]+[A-Za-z0-9-_]+)/, identifier) do
+   if Regex.match?(@username_verification, identifier) do
     find_by_username(identifier, password)
-   else if Regex.match?(~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/, identifier) do
+   else if Regex.match?(@email_verification, identifier) do
     find_by_email(identifier, password)
    else
     {:error, "Email or username not present in database"}
@@ -136,9 +142,114 @@ defmodule BadgerApi.Accounts do
       {:error, "Wrong username, email or password"}
 
     end
-end
+  end
 
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking writer changes.
+
+  ## Examples
+
+      iex> change_writer(writer)
+      %Ecto.Changeset{source: %Writer{}}
+
+  """
   def change_writer(%Writer{} = writer) do
     Writer.changeset(writer, %{})
+  end
+
+  alias BadgerApi.Accounts.Relationships
+
+  @doc """
+  Returns the list of followers.
+
+  ## Examples
+
+      iex> followers()
+      [%Relationships{}, ...]
+
+  """
+  def followers(id) do
+    user = Repo.get(Writer, id) |> Repo.preload(:followers)
+    user.followers
+  end
+
+  def following(id) do
+    user = Repo.get(Writer, id) |> Repo.preload(:following)
+    user.following
+
+  end
+
+
+
+  @doc """
+  Follow a user.
+
+  ## Examples
+
+      iex> follow(%{follower_id: writer_id, following_id: other_writer_id})
+      {:ok, %Relationships{}}
+
+      iex> follow(%{follower_id: bad_writer_id, following_id: other_writer_id})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def follow(current_writer_id, other_writer_id) do
+
+    %Relationships{}
+    |> Relationships.changeset(%{follower_id: current_writer_id, following_id: other_writer_id})
+    |> Repo.insert()
+  end
+
+  def follow!(current_writer_id, other_writer_id) do
+
+  %Relationships{}
+  |> Relationships.changeset(%{follower_id: current_writer_id, following_id: other_writer_id})
+  |> Repo.insert!()
+  end
+
+
+
+  @doc """
+  Deletes a Relationships.
+
+  ## Examples
+
+      iex> unfollow(123, 457)
+      {:ok, %Relationships{}}
+
+      iex> unfollow(124, 4556)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def unfollow!(current_writer_id, other_writer_id) do
+    relationship = Repo.get_by!(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+    Repo.delete!(relationship)
+  end
+
+  def unfollow(current_writer_id, other_writer_id) do
+    relationship = Repo.get_by(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+    Repo.delete(relationship)
+  end
+
+
+  def is_following?(current_writer_id, other_writer_id) do
+    Repo.get_by(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+  end
+
+
+
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking relationships changes.
+
+  ## Examples
+
+      iex> change_relationships(relationships)
+      %Ecto.Changeset{source: %Relationships{}}
+
+  """
+  def change_relationships(%Relationships{} = relationships) do
+    Relationships.changeset(relationships, %{})
   end
 end

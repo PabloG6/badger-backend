@@ -3,7 +3,6 @@ defmodule BadgerApi.Publications.Stories do
   import Ecto.Changeset
   alias BadgerApi.Accounts.Writer
   @primary_key {:id, :binary_id, autogenerate: true}
-
   schema "stories" do
     field :body, :string
     field :description, :string

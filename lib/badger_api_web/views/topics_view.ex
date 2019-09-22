@@ -13,6 +13,7 @@ defmodule BadgerApiWeb.TopicsView do
   def render("topics.json", %{topics: topics}) do
     %{id: topics.id,
       title: topics.title,
+      slug: topics.slug,
       description: topics.description}
   end
 

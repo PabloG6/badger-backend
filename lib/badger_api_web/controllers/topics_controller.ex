@@ -22,21 +22,25 @@ defmodule BadgerApiWeb.TopicsController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    topics = Badge.get_topics!(id)
+
+
+  def show(conn, %{"slug" => slug}) do
+    topics = Badge.get_topics_by_slug!(slug)
     render(conn, "show.json", topics: topics)
+
   end
 
-  def update(conn, %{"id" => id, "topics" => topics_params}) do
-    topics = Badge.get_topics!(id)
+
+  def update(conn, %{"slug" => slug, "topics" => topics_params}) do
+    topics = Badge.get_topics_by_slug!(slug)
 
     with {:ok, %Topics{} = topics} <- Badge.update_topics(topics, topics_params) do
       render(conn, "show.json", topics: topics)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    topics = Badge.get_topics!(id)
+  def delete(conn, %{"slug" => slug}) do
+    topics = Badge.get_topics_by_slug!(slug)
 
     with {:ok, %Topics{}} <- Badge.delete_topics(topics) do
       send_resp(conn, :no_content, "")

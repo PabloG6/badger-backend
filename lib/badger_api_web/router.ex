@@ -13,16 +13,24 @@ defmodule BadgerApiWeb.Router do
 
   scope "/api", BadgerApiWeb do
     pipe_through [:api, :auth]
-    resources "/topics", TopicsController, except: [:new, :edit]
-    resources "/writers", WritersController, except: [:new, :edit, :create, :show, :index]
+    resources "/topics", TopicsController, except: [:new, :edit], param: "slug"
+    resources "/writers", WritersController, except: [:new, :edit, :show, :index, :create]
     resources "/stories", StoriesController, except: [:new, :edit]
+    post "/follow", RelationshipsController, :create
+    delete "/unfollow/:id", RelationshipsController, :delete
+    get "/followers", RelationshipsController, :followers
+    get "/following", RelationshipsController, :following
+    get "/following/show/:id", RelationshipsController, :show
   end
+
+
 
   scope "/api", BadgerApiWeb do
     pipe_through [:api]
     post "/login", WritersController, :login
-    post "/signup", WritersController, :create
+    post "/signup", WritersController, :signup
     get "/writers/:id", WritersController, :show
+    post "/writers", WritersController, :create
     get "/writers", WritersController, :index
 
   end

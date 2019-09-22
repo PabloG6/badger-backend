@@ -4,12 +4,22 @@ defmodule BadgerApiWeb.WritersControllerTest do
   alias BadgerApi.Accounts
   alias BadgerApi.Accounts.Writer
 
+  @create_interests [
+    %{title: "Productivity", description: "Centered around manifesting productivity"},
+    %{title: "Creativity", description: "Making you more creative"}
+  ]
+
   @create_attrs %{
     email: "some@email.com",
     name: "some name",
     password: "some password_hash",
-    username: "@someusername"
+    username: "@someusername",
+    interests: @create_interests
   }
+
+
+
+
   @update_attrs %{
     email: "someupdated@email.com",
     name: "some updated name",
@@ -82,6 +92,8 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
     end
   end
+
+
 
   describe "update writers" do
     setup [:create_writers]
