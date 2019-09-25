@@ -23,6 +23,15 @@ defmodule BadgerApiWeb.Router do
     get "/following/show/:id", RelationshipsController, :show
   end
 
+  scope "/api", BadgerApiWeb do
+    pipe_through [:api, :auth]
+    get "/topics/:slug/stories", TopicsController, :filter_stories
+    post "/topics/:slug/follow", TopicsController, :follow
+    delete "/topics/:slug/unfollow", TopicsController, :unfollow
+    get "/topics/following/", TopicsController, :following
+    get "/topics/is-following/", TopicsControntroller, :is_following?
+  end
+
 
 
   scope "/api", BadgerApiWeb do

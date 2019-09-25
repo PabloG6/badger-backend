@@ -4,6 +4,8 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   alias BadgerApi.Badge
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts
+  alias BadgerApi.Context
+  alias BadgerApi.Publications
   @create_attrs %{
     description: "some description",
     title: "some title"
@@ -19,6 +21,22 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     password: "some password_hash",
     username: "@someusername"
   }
+
+  @story_attrs %{description: "some story description",
+                    body: "some story body",
+                    title: "some title",
+                    categories: ["topic one", "topic two", "topic three", "some title"]
+                    }
+
+  @other_story_attrs %{description: "some other story description",
+                          body: "some ohter story body",
+                          title: "some other title",
+                          categories: ["topic one", "topic four", "topic five", "some title"]}
+
+  @third_story_attrs %{description: "some third story description",
+                        body: "some third story body",
+                        title: "some third title",
+                        categories: ["topic seven", "topic eight", "topic nine"]}
   def fixture(:topics) do
     {:ok, topics} = Badge.create_topics(@create_attrs)
     topics
@@ -29,7 +47,7 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
      conn = put_req_header(conn, "accept", "application/json") |> put_req_header("authorization", "bearer: " <> token)
 
-    {:ok, conn: conn}
+    {:ok, conn: conn, writer: writer}
   end
 
   describe "index" do
@@ -95,8 +113,54 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     end
   end
 
+  describe "filter stories" do
+    setup [:create_topics, :create_stories]
+    @tag :filter_stories
+    test "filter stories by topic" , %{conn: conn, stories: stories, topics: topics} do
+      conn = get(conn, Routes.topics_path(conn, :filter_stories, topics.slug))
+      assert Enum.map(json_response(conn, 200)["data"], &(&1["id"])) ==
+        Enum.map(stories, &(&1.id))
+    end
+  end
+
+  describe "follow topics" do
+    setup [:create_topics]
+    test "follow a topic", %{conn: conn, topics: topics} do
+      post(conn, Routes.topics_path(conn, :follow, topics.slug))
+      assert response(conn, 200)
+    end
+
+    test "unfollow a topic", %{conn: conn, topics: topics} do
+      delete(conn, Routes.topics_path(conn, :unfollow, topics.slug))
+      assert response(conn, 204)
+    end
+
+    test "get a list of topics", %{conn: conn, topics: topics, writer: writer} do
+      get(conn, Routes.topics_path(conn, :following, topics.slug))
+      following = Context.list_topics_interest(writer.id)
+      assert json_response(conn, 200)["data"] == Enum.map(following,
+       &%{"title"=>&1.title, "id"=>&1.id, "slug"=>&1.slug, "description" => &1.description})
+    end
+
+    test "check if following a topic", %{conn: conn, topics: topics} do
+      get(conn, Routes.topics_path(conn, :is_following, topics.slug))
+      assert response(conn, 204)
+
+    end
+  end
+
   defp create_topics(_) do
     topics = fixture(:topics)
     {:ok, topics: topics}
+  end
+
+  defp create_stories(%{writer: writer}) do
+
+
+    {:ok, stories} = Publications.create_stories(Map.put(@story_attrs, :writer_id, writer.id))
+    {:ok, other_stories} = Publications.create_stories(Map.put(@other_story_attrs, :writer_id, writer.id))
+    {:ok, third_stories} = Publications.create_stories(Map.put(@third_story_attrs, :writer_id, writer.id))
+
+    {:ok, stories: [stories, other_stories,], third_stories: third_stories}
   end
 end

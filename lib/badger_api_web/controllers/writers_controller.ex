@@ -3,7 +3,7 @@ defmodule BadgerApiWeb.WritersController do
 
 
   alias BadgerApi.Accounts.Writer
-  alias BadgerApi.Auth
+
   alias BadgerApi.Accounts
   action_fallback BadgerApiWeb.FallbackController
 

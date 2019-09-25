@@ -39,8 +39,6 @@ defmodule BadgerApiWeb.StoriesController do
 
     stories = Publications.get_stories!(id)
 
-
-
     with true <- writer.id == stories.writer_id,
     {:ok, %Stories{} = stories} <- Publications.update_stories(stories, stories_params) do
       render(conn, "show.json", stories: stories)

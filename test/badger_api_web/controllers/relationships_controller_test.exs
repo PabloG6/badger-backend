@@ -3,6 +3,8 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
 
   alias BadgerApi.Accounts
 
+  alias BadgerApi.Accounts.Relationships
+
 
   @follower %{
     username: "@follower",
@@ -25,7 +27,6 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
 
   setup %{conn: conn} do
     {:ok, writer} = Accounts.create_writer(@follower)
-    IO.puts "Hello setup"
     {:ok, token, _claims} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
 
 
@@ -78,7 +79,7 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
 
 
 
-  describe "follow and unfollow user" do
+  describe "follow user" do
     setup [:create_subject]
     test "follow a user", %{conn: conn, subject: subject} do
       conn = post(conn, Routes.relationships_path(conn, :create), subject_id: subject.id)
@@ -91,17 +92,26 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
-    test "check if following user" , %{conn: conn, subject: subject, writer: writer} do
-      conn = get(conn, Routes.relationships_path(conn, :show, subject.id))
-      assert json_response(conn, 200)["data"] == [%{"following_id" => subject.id, "follower_id" => writer.id}]
-    end
-    test "unfollow said user", %{conn: conn, subject: subject, writer: writer} do
-      conn = delete(conn, Routes.relationships_path(conn, :delete, subject.id))
-      assert response(conn, 204)
-    end
+
 
 
   end
+
+  describe "unfollow user" do
+    setup [:create_following]
+    test "check if following user" , %{conn: conn, subject: subject, writer: writer, relationships: %Relationships{id: id}} do
+      conn = get(conn, Routes.relationships_path(conn, :show, subject.id))
+
+      assert %{"following_id" => subject.id, "follower_id" => writer.id, "id" => id} == json_response(conn, 200)["data"]
+    end
+
+    test "unfollow said user", %{conn: conn, subject: subject} do
+      conn = delete(conn, Routes.relationships_path(conn, :delete, subject.id))
+      assert response(conn, 204)
+    end
+  end
+
+
 
   defp create_follower(%{ writer: writer}) do
 

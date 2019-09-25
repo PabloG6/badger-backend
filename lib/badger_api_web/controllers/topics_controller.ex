@@ -3,7 +3,8 @@ defmodule BadgerApiWeb.TopicsController do
 
   alias BadgerApi.Badge
   alias BadgerApi.Badge.Topics
-
+  alias BadgerApi.Context.TopicsInterest
+  alias BadgerApi.Context
   action_fallback BadgerApiWeb.FallbackController
 
   def index(conn, _params) do
@@ -23,6 +24,48 @@ defmodule BadgerApiWeb.TopicsController do
   end
 
 
+
+
+
+  def filter_stories(conn, %{"slug" => slug}) do
+    stories = Badge.filter_stories!(slug)
+    render(conn, "show_stories.json", stories: stories)
+  end
+
+  def follow_topics(conn, %{"slug" => slug}) do
+    writer = Guardian.Plug.current_resource(conn)
+    topics = Badge.get_topics_by_slug!(slug)
+    with {:ok, %TopicsInterest{}} <- Context.create_topics_interest(%{writer_id: writer.id, topics_id: topics.id}) do
+      send_resp(conn, :created, "")
+
+    end
+
+  end
+
+  def unfollow_topics(conn, %{"slug" => slug}) do
+    writer = Guardian.Plug.current_resource(conn)
+    topics = Badge.get_topics_by_slug!(slug)
+    with {:ok, %TopicsInterest{}} <- Context.delete_topics_interest(%{writer_id: writer.id, topics_id: topics.id}) do
+      send_resp(conn, :no_content, "")
+    end
+
+
+  end
+
+
+  def following(conn, _params) do
+    writer = Guardian.Plug.current_resource(conn)
+    topics = Context.list_topics_interest(writer.id)
+    render(conn, :index, topics: topics)
+  end
+
+  def is_following(conn, %{"slug" => slug}) do
+    writer = Guardian.Plug.current_resource(conn)
+    topics = Badge.get_topics_by_slug(slug)
+    with true <- Context.is_following?(writer.id, topics.id) do
+      send_resp(conn, :no_content, "")
+    end
+  end
 
   def show(conn, %{"slug" => slug}) do
     topics = Badge.get_topics_by_slug!(slug)
@@ -46,4 +89,6 @@ defmodule BadgerApiWeb.TopicsController do
       send_resp(conn, :no_content, "")
     end
   end
+
+
 end

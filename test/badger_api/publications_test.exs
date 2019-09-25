@@ -33,7 +33,7 @@ defmodule BadgerApi.PublicationsTest do
 
     test "list_stories/0 returns all stories" do
       stories = stories_fixture()
-      assert Publications.list_stories() == [stories]
+      assert Publications.list_stories() == [stories |> Repo.preload(:writer)]
     end
 
     test "get_stories!/1 returns the stories with given id" do

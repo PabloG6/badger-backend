@@ -167,8 +167,8 @@ defmodule BadgerApi.AccountsTest do
 
     test "follow/1 follows a specific user" do
       {writer, writer_to_follow} = relationships_fixture(:follow)
-     Accounts.follow(writer.id, writer_to_follow.id)
-      assert Accounts.is_following?(writer.id, writer_to_follow.id) == true
+     {:ok, relationship} = Accounts.follow(writer.id, writer_to_follow.id)
+      assert Accounts.is_following?(writer.id, writer_to_follow.id) == relationship
     end
 
     test "unfollow/1 unfollows a specific user" do
@@ -179,7 +179,7 @@ defmodule BadgerApi.AccountsTest do
 
     test "is_following?/1 check if one user is following another" do
       {first_writer, second_writer, relationship} = relationships_fixture(:relationships)
-      {:ok, %Relationship{} = relationship_check} = Accounts.is_following?(first_writer.id, second_writer.id)
+      relationship_check = Accounts.is_following?(first_writer.id, second_writer.id)
       assert relationship == relationship_check
     end
 

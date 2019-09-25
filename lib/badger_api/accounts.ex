@@ -21,7 +21,7 @@ defmodule BadgerApi.Accounts do
   @username_verification ~r/(?<=^|(?<=[^a-zA-Z0-9-_.]))@([A-Za-z]+[A-Za-z0-9-_]+)/
   @email_verification ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
   def list_writers do
-    Repo.all(Writer) |> Repo.preload(:interests)
+    Repo.all(Writer) |> Repo.preload(:writes_about_topics)
   end
 
 
@@ -39,8 +39,8 @@ defmodule BadgerApi.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_writer!(id), do: Repo.get!(Writer, id) |> Repo.preload(:interests)
-  def get_writer(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
+  def get_writer!(id), do: Repo.get!(Writer, id) |> Repo.preload(:writes_about_topics)
+  def get_writer(id), do: Repo.get(Writer, id) |> Repo.preload(:writes_about_topics)
 
   @doc """
     returns the profile of the writer
@@ -49,8 +49,8 @@ defmodule BadgerApi.Accounts do
     iex> get_writer_profile!(123)
     %Writer{}
   """
-  def get_writer_profile!(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
-  def get_writer_profile(id), do: Repo.get(Writer, id) |> Repo.preload(:interests)
+  def get_writer_profile!(id), do: Repo.get(Writer, id) |> Repo.preload(:writes_about_topics)
+  def get_writer_profile(id), do: Repo.get(Writer, id) |> Repo.preload(:writes_about_topics)
 
 
   @doc """

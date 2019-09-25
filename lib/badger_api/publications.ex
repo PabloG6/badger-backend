@@ -17,7 +17,7 @@ defmodule BadgerApi.Publications do
 
   """
   def list_stories do
-    Repo.all(Stories)
+    Repo.all(Stories) |> Repo.preload([:categories, :writer])
   end
 
   @doc """
@@ -34,7 +34,7 @@ defmodule BadgerApi.Publications do
       ** (Ecto.NoResultsError)
 
   """
-  def get_stories!(id), do: Repo.get!(Stories, id)
+  def get_stories!(id), do: Repo.get!(Stories, id) |> Repo.preload(:categories)
 
   @doc """
   Creates a stories.

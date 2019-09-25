@@ -5,11 +5,29 @@ defmodule BadgerApi.BadgeTest do
 
   describe "topics" do
     alias BadgerApi.Badge.Topics
+    alias BadgerApi.Accounts
+    alias BadgerApi.Publications
 
     @valid_attrs %{description: "some description", title: "some title"}
     @update_attrs %{description: "some updated description", title: "some updated title"}
     @invalid_attrs %{description: nil, title: nil}
+    @writer_attrs %{name: "some writer", username: "@somewriter", email: "somewriter@gmail.com",  password: "password"}
 
+    @story_attrs %{description: "some story description",
+                    body: "some story body",
+                    title: "some title",
+                    categories: ["topic one", "topic two", "topic three", ]
+                    }
+    @topics_attrs %{title: "topic one"}
+    @other_story_attrs %{description: "some other story description",
+                          body: "some ohter story body",
+                          title: "some other title",
+                          categories: ["topic one", "topic four", "topic five"]}
+
+    @third_story_attrs %{description: "some third story description",
+                        body: "some third story body",
+                        title: "some third title",
+                        categories: ["topic seven", "topic eight", "topic nine"]}
     def topics_fixture(attrs \\ %{}) do
       {:ok, topics} =
         attrs
@@ -17,6 +35,18 @@ defmodule BadgerApi.BadgeTest do
         |> Badge.create_topics()
 
       topics
+    end
+
+
+
+    def filter_stories() do
+      {:ok, writer} = Accounts.create_writer(@writer_attrs)
+
+      {:ok, stories} = Publications.create_stories(Map.put(@story_attrs, :writer_id, writer.id))
+      {:ok, other_stories} = Publications.create_stories(Map.put(@other_story_attrs, :writer_id, writer.id))
+      {:ok, third_stories} = Publications.create_stories(Map.put(@third_story_attrs, :writer_id, writer.id))
+
+      {:ok, [stories, other_stories,], writer, third_stories}
     end
 
     test "list_topics/0 returns all topics" do
@@ -32,7 +62,6 @@ defmodule BadgerApi.BadgeTest do
     test "create_topics/1 with valid data creates a topics" do
 
       assert {:ok, %Topics{} = topics} = Badge.create_topics(@valid_attrs)
-      IO.inspect topics
       assert topics.description == "some description"
       assert topics.title == "some title"
     end
@@ -64,5 +93,16 @@ defmodule BadgerApi.BadgeTest do
       topics = topics_fixture()
       assert %Ecto.Changeset{} = Badge.change_topics(topics)
     end
+
+    @tag :filter_stories
+    test "filter_stories/1 returns a list of stories based on slug passed" do
+      topic = topics_fixture(@topics_attrs)
+      {:ok, stories, _writer, _third_stories} = filter_stories()
+
+      assert Enum.map(stories, &(&1.id))== Enum.map(Badge.filter_stories!(topic.slug), &(&1.id))
+    end
+
+
+
   end
 end
