@@ -11,7 +11,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
     name: "some name",
     password: "some password_hash",
     username: "@someusername",
-    interests: ["dragon fruit", "entawak", "figs"]
+    writes_about_topics: ["dragon fruit", "entawak", "figs"]
   }
 
 
@@ -22,7 +22,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
     name: "some updated name",
     password: "some updated password_hash",
     username: "@someupdatedusername",
-    interests: ["apples", "bananas", "coconut"]
+    writes_about_topics: ["apples", "bananas", "coconut"]
   }
   @invalid_attrs %{email: nil, name: nil, password: nil, username: nil}
 
@@ -36,6 +36,11 @@ defmodule BadgerApiWeb.WritersControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
+  defp put_profile_image(attrs \\ %{}) do
+
+    attrs |> Map.put("avatar",
+     %Plug.Upload{filename: "profile-pic.jpg", path: "test/static/", content_type: "image/jpeg"})
+  end
   describe "index" do
 
     test "lists all writer", %{conn: conn} do
@@ -65,6 +70,10 @@ defmodule BadgerApiWeb.WritersControllerTest do
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.writers_path(conn, :create), writers: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    test "renders data when profile image is sent" , %{conn: conn} do
+      conn = post(conn, Routes.writers_path(conn, :create), writers: put_profile_image(@create_attrs))
     end
   end
   describe "account session for writers" do

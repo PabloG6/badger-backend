@@ -5,7 +5,7 @@ defmodule BadgerApi.Context do
 
   import Ecto.Query, warn: false
   alias BadgerApi.Repo
-
+  alias BadgerApi.Accounts.Writer
   alias BadgerApi.Context.TopicsInterest
 
   @doc """
@@ -18,7 +18,8 @@ defmodule BadgerApi.Context do
 
   """
   def list_topics_interest(id) do
-    Repo.get(Writer, id) |> Repo.preload(:interested_in_topics)
+    writer = Repo.get(Writer, id) |> Repo.preload(:interested_in_topics)
+    writer.interested_in_topics
   end
 
 
@@ -35,6 +36,11 @@ defmodule BadgerApi.Context do
 
   def get_topics_interest(id) do
     Repo.get(TopicsInterest, id)
+  end
+
+  def get_specific_topics_interest!(writer_id, topics_id), do: Repo.get_by!(TopicsInterest, [writer_id: writer_id, topics_id: topics_id])
+  def get_topics_interest!(id) do
+    Repo.get!(TopicsInterest, id)
   end
   @doc """
   Creates a topics_interest.

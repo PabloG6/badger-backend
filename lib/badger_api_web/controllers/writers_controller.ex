@@ -52,6 +52,8 @@ defmodule BadgerApiWeb.WritersController do
     end
   end
 
+
+
   def login(conn, %{"identifier" => identifier, "password" => password}) do
     with {:ok, writer} <- BadgerApi.Accounts.authenticate_writer(%{identifier: identifier, password: password}) do
         conn

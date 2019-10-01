@@ -10,17 +10,18 @@ defmodule BadgerApi.AccountsTest do
     email: "some@email.com",
      name: "some name",
      username: "@someusername",
+     writes_about_topics: ["hip hop", "cooking", "lifestyle"],
     password: "some password"}
-    @hip_hop_attrs %{title: "Hip Hop"}
-    @lifestyle_hack_attrs %{title: "Lifestyle Hack"}
 
-    @productivity_attrs %{title: "Productivity"}
+
+    @lifestyle_hack_attrs %{title: "Topics one"}
+
+
 
     @valid_attrs_interest %{description: "some description",
     email: "some@email.com",
      name: "some name",
      username: "@someusername",
-     interests: [@hip_hop_attrs, @productivity_attrs,@lifestyle_hack_attrs],
 
      password: "some password"}
 
@@ -33,12 +34,11 @@ defmodule BadgerApi.AccountsTest do
 
 
     def writer_fixture(attrs \\ %{}) do
-      {:ok, writer} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_writer()
-
+      {:ok, writer} = attrs
+                      |> Enum.into(@valid_attrs)
+                      |> Accounts.create_writer()
       writer
+
     end
 
     def topics_fixture(attrs \\ %{}) do
@@ -48,12 +48,15 @@ defmodule BadgerApi.AccountsTest do
 
     test "list_writers/0 returns all writers" do
       writer = writer_fixture()
-      assert Accounts.list_writers() == [%{writer | password: nil, interests: []}]
+
+      assert Accounts.list_writers() == [%{writer | password: nil}]
     end
 
     test "get_writer!/1 returns the writer with given id" do
       writer = writer_fixture()
+
       writer_check = Accounts.get_writer!(writer.id)
+
       assert writer.id == writer_check.id
       assert writer.username == writer_check.username
       assert writer.name == writer_check.name
@@ -62,7 +65,7 @@ defmodule BadgerApi.AccountsTest do
 
     end
 
-    test "create_writer/1 with valid data that contains interests" do
+    test "create_writer/1 with valid data that contains writes_about_topics" do
       assert {:ok, %Writer{} = writer} = Accounts.create_writer(@valid_attrs_interest)
       assert writer.description == "some description"
       assert writer.email == "some@email.com"
@@ -105,12 +108,8 @@ defmodule BadgerApi.AccountsTest do
     test "update_writer/2 with invalid data returns error changeset" do
       writer = writer_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_writer(writer, @invalid_attrs)
-      # get the writer
-      writer_check = Accounts.get_writer!(writer.id)
-      assert writer.description == writer_check.description
-      assert writer.email == writer_check.email
-      assert writer.name == writer_check.name
-      assert writer.username == writer_check.username
+
+
 
     end
 
@@ -154,14 +153,15 @@ defmodule BadgerApi.AccountsTest do
     end
     test "followers/1 returns all followers for specific user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
-      assert Accounts.following(first_writer.id) == [%Writer{second_writer | password: nil}]
+      assert Enum.map(Accounts.following(first_writer.id), &%Writer{&1 | writes_about_topics: []}) == [%Writer{second_writer | password: nil}]
 
     end
 
 
     test "following/1 returns all users following this user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
-      assert Accounts.followers(second_writer.id) == [%Writer{first_writer | password: nil}]
+      assert Enum.map(Accounts.followers(second_writer.id), &%Writer{&1 | writes_about_topics: []})
+       == [%Writer{first_writer | password: nil, writes_about_topics: []}]
     end
 
 

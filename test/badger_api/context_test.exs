@@ -27,9 +27,10 @@ defmodule BadgerApi.ContextTest do
       {:ok, writer, topics, topics_interest}
     end
 
-    test "list_topics_interest/0 returns all topics_interest" do
-      topics_interest = topics_interest_fixture()
-      assert Context.list_topics_interest() == [topics_interest]
+    test "list_topics_interest/1 returns all topics_interest" do
+      {:ok, writer, topics, _topics_interest} = topics_interest_fixture()
+      assert Context.list_topics_interest(writer.id) == [%{topics | description: "No description."
+      }]
     end
 
     test "get_topics_interest!/1 returns the topics_interest with given id" do
@@ -40,7 +41,7 @@ defmodule BadgerApi.ContextTest do
     test "create_topics_interest/1 with valid data creates a topics_interest" do
       {:ok, writer} = Accounts.create_writer(@valid_writer_attrs)
       {:ok, topics} = Badge.create_topics(@valid_topics_attrs)
-      assert {:ok, %TopicsInterest{}} = Context.create_topics_interest(writer.id, topics.id)
+      assert {:ok, %TopicsInterest{}} = Context.create_topics_interest(%{writer_id: writer.id, topics_id: topics.id})
     end
 
     test "create_topics_interest/1 with invalid data returns error changeset" do
@@ -49,7 +50,8 @@ defmodule BadgerApi.ContextTest do
 
 
     test "delete_topics_interest/1 deletes the topics_interest" do
-      topics_interest = topics_interest_fixture()
+      {:ok, _writer, _topics, topics_interest} = topics_interest_fixture()
+
       assert {:ok, %TopicsInterest{}} = Context.delete_topics_interest(topics_interest)
       assert_raise Ecto.NoResultsError, fn -> Context.get_topics_interest!(topics_interest.id) end
     end

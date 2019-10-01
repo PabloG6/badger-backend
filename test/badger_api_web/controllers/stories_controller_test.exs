@@ -78,6 +78,9 @@ defmodule BadgerApiWeb.StoriesControllerTest do
       conn = post(conn, Routes.stories_path(conn, :create), stories: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+
+
   end
 
   describe "update stories" do

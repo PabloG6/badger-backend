@@ -4,8 +4,8 @@ defmodule BadgerApi.Context.TopicsInterest do
   alias BadgerApi.Accounts.Writer
   alias BadgerApi.Badge.Topics
   schema "topics_interests" do
-    belongs_to :writer, Writer
-    belongs_to :topics, Topics
+    belongs_to :writer, Writer, type: :binary_id
+    belongs_to :topics, Topics, type: :binary_id
 
   end
 

@@ -1,24 +1,28 @@
 defmodule BadgerApi.Accounts.Writer do
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
   alias BadgerApi.Publications.Stories
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts.Relationships
   alias BadgerApi.Repo
+
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "writers" do
     field :description, :string
     field :email, :string
+    field :avatar, BadgerApi.Avatar.Type
     field :name, :string
     field :username, :string
+
     field :password, :string, virtual: true
     field :password_hash, :string
     has_many :stories, Stories
-    many_to_many :writes_about_topics, Topics, join_through: "writers_topics", on_delete: :delete_all
+    many_to_many :writes_about_topics, Topics, join_through: "writers_topics", on_delete: :delete_all, on_replace: :delete
     many_to_many :interested_in_topics, Topics, join_through: "topics_interests", on_delete: :delete_all
-    has_many :interests, through: [:interested_in_topics, :topics]
+
     has_many :active_relationships, Relationships, foreign_key: :following_id
     has_many :passive_relationships, Relationships, foreign_key: :follower_id
     has_many :followers, through: [:active_relationships, :follower]
@@ -33,7 +37,8 @@ defmodule BadgerApi.Accounts.Writer do
   @doc false
   def changeset(writer, attrs) do
     writer
-    |> cast(attrs, [:name, :username, :email, :description, :password, ])
+    |> cast(attrs, [:name, :username, :email, :description, :password])
+    |> cast_attachments(attrs, [:avatar])
     |> validate_required([:name, :username, :email, :password])
     |> put_assoc(:writes_about_topics, parse_interests(attrs))
     |> validate_length(:password, min: 6)
@@ -55,13 +60,13 @@ defmodule BadgerApi.Accounts.Writer do
     []
   end
 
-  defp upsert_interests_list(interests) do
+  defp upsert_interests_list(writes_about_topics) do
 
-     interests_map = Enum.map(interests, &%{title: &1, slug: Slug.slugify(&1),
+     interests_map = Enum.map(writes_about_topics, &%{title: &1, slug: Slug.slugify(&1),
      updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now, :second),
      inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now, :second)})
     Repo.insert_all Topics, interests_map, on_conflict: :nothing
-    Repo.all from topic in Topics, where: topic.title in ^interests
+    Repo.all from topic in Topics, where: topic.title in ^writes_about_topics
   end
 
   defp downcase_username(%Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset) do

@@ -44,7 +44,13 @@ defmodule BadgerApi.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:bcrypt_elixir, "~> 2.0.3"},
       {:ecto_autoslug_field, "~> 0.3"},
-      {:slugify, "~> 1.2"}
+      {:google_api_storage, "~> 0.13.0"},
+      {:arc_gcs, "~> 0.1.0"},
+      {:slugify, "~> 1.2"},
+      {:uuid, "~> 1.1" },
+      {:arc_ecto, "~> 0.11.1"},
+      {:goth, "~> 1.1.0"},
+      {:arc, "~> 0.11.0"} ,
     ]
   end
 

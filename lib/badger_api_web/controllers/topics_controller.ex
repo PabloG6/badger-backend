@@ -45,7 +45,9 @@ defmodule BadgerApiWeb.TopicsController do
   def unfollow_topics(conn, %{"slug" => slug}) do
     writer = Guardian.Plug.current_resource(conn)
     topics = Badge.get_topics_by_slug!(slug)
-    with {:ok, %TopicsInterest{}} <- Context.delete_topics_interest(%{writer_id: writer.id, topics_id: topics.id}) do
+    topics_interest = Context.get_specific_topics_interest!(writer.id, topics.id)
+
+    with {:ok, %TopicsInterest{}} <- Context.delete_topics_interest(topics_interest) do
       send_resp(conn, :no_content, "")
     end
 
@@ -59,11 +61,15 @@ defmodule BadgerApiWeb.TopicsController do
     render(conn, :index, topics: topics)
   end
 
-  def is_following(conn, %{"slug" => slug}) do
+  def is_following?(conn, %{"slug" => slug}) do
     writer = Guardian.Plug.current_resource(conn)
     topics = Badge.get_topics_by_slug(slug)
-    with true <- Context.is_following?(writer.id, topics.id) do
-      send_resp(conn, :no_content, "")
+    case Context.is_following?(writer.id, topics.id) do
+
+      true -> send_resp(conn, :no_content, "")
+      false -> {:error, :not_found}
+      _ -> {:error, :not_found}
+
     end
   end
 

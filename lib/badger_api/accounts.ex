@@ -175,7 +175,9 @@ defmodule BadgerApi.Accounts do
   end
 
   def following(id) do
+
     user = Repo.get(Writer, id) |> Repo.preload(:following)
+
     user.following
 
   end

@@ -126,26 +126,39 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   describe "follow topics" do
     setup [:create_topics]
     test "follow a topic", %{conn: conn, topics: topics} do
-      post(conn, Routes.topics_path(conn, :follow, topics.slug))
-      assert response(conn, 200)
+      conn = post(conn, Routes.topics_path(conn, :follow_topics, topics.slug))
+      assert response(conn, 201)
     end
 
-    test "unfollow a topic", %{conn: conn, topics: topics} do
-      delete(conn, Routes.topics_path(conn, :unfollow, topics.slug))
+
+  end
+
+  describe "following topics" do
+    setup [:create_topics_interest]
+
+    test "unfollow a topic", %{conn: conn, topics: topics,} do
+      conn = delete(conn, Routes.topics_path(conn, :unfollow_topics, topics.slug))
       assert response(conn, 204)
     end
 
-    test "get a list of topics", %{conn: conn, topics: topics, writer: writer} do
-      get(conn, Routes.topics_path(conn, :following, topics.slug))
+    test "get a list of topics your following", %{conn: conn,  writer: writer} do
+      conn = get(conn, Routes.topics_path(conn, :following))
       following = Context.list_topics_interest(writer.id)
       assert json_response(conn, 200)["data"] == Enum.map(following,
        &%{"title"=>&1.title, "id"=>&1.id, "slug"=>&1.slug, "description" => &1.description})
     end
 
-    test "check if following a topic", %{conn: conn, topics: topics} do
-      get(conn, Routes.topics_path(conn, :is_following, topics.slug))
-      assert response(conn, 204)
+    test "renders 404 when user isn't following a topic", %{conn: conn, topics: topics, topics_interest: topics_interest} do
+      Context.delete_topics_interest(topics_interest)
+      conn = get(conn, Routes.topics_path(conn, :is_following?, topics.slug))
+      assert response(conn, 404)
 
+    end
+
+    test "renders 204 if following a topic", %{conn: conn, topics: topics,} do
+
+      conn = get(conn, Routes.topics_path(conn, :is_following?, topics.slug))
+      assert response(conn, 204)
     end
   end
 
@@ -153,6 +166,14 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     topics = fixture(:topics)
     {:ok, topics: topics}
   end
+
+  def create_topics_interest(%{writer: writer}) do
+    topics = fixture(:topics)
+      {:ok, topics_interest} = Context.create_topics_interest(%{writer_id: writer.id, topics_id: topics.id})
+    {:ok, topics_interest: topics_interest, topics: topics}
+
+  end
+
 
   defp create_stories(%{writer: writer}) do
 
