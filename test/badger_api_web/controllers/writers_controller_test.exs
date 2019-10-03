@@ -38,8 +38,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
   defp put_profile_image(attrs \\ %{}) do
 
-    attrs |> Map.put("avatar",
-     %Plug.Upload{filename: "profile-pic.jpg", path: "test/static/", content_type: "image/jpeg"})
+    Map.put(attrs, "avatar", Path.expand("test/static/profile-pic.jpg"))
   end
   describe "index" do
 
