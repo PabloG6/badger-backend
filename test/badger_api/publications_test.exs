@@ -3,12 +3,12 @@ defmodule BadgerApi.PublicationsTest do
 
   alias BadgerApi.Publications
 
-  describe "stories" do
-    alias BadgerApi.Publications.Stories
+  describe "articles" do
+    alias BadgerApi.Publications.Articles
     alias BadgerApi.Accounts
-    @valid_attrs %{body: "some body", description: "some description", title: "some title"}
-    @update_attrs %{body: "some updated body", description: "some updated description", title: "some updated title"}
-    @invalid_attrs %{body: nil, description: nil, title: nil}
+    @valid_attrs %{content: "some content", description: "some description", title: "some title"}
+    @update_attrs %{content: "some updated content", description: "some updated description", title: "some updated title"}
+    @invalid_attrs %{content: nil, description: nil, title: nil}
     @create_writer_attrs %{
       email: "some@email.com",
       name: "some name",
@@ -20,65 +20,65 @@ defmodule BadgerApi.PublicationsTest do
       Map.put(attrs, :writer_id, writer.id)
 
     end
-    def stories_fixture(attrs \\ %{}) do
+    def articles_fixture(attrs \\ %{}) do
       {:ok, writer} = Accounts.create_writer(@create_writer_attrs)
-      {:ok, stories} =
+      {:ok, articles} =
        writer
         |> create_valid_attrs(attrs)
         |> Enum.into(@valid_attrs)
-        |> Publications.create_stories()
+        |> Publications.create_articles()
 
-      stories
+      articles
     end
 
-    test "list_stories/0 returns all stories" do
-      stories = stories_fixture()
-      assert Publications.list_stories() == [stories |> Repo.preload(:writer)]
+    test "list_articles/0 returns all articles" do
+      articles = articles_fixture()
+      assert Publications.list_articles() == [articles |> Repo.preload(:writer)]
     end
 
-    test "get_stories!/1 returns the stories with given id" do
-      stories = stories_fixture()
-      assert Publications.get_stories!(stories.id) == stories
+    test "get_articles!/1 returns the articles with given id" do
+      articles = articles_fixture()
+      assert Publications.get_articles!(articles.id) == articles
     end
 
-    test "create_stories/1 with valid data creates a stories" do
+    test "create_articles/1 with valid data creates a articles" do
       {:ok, writer}  = Accounts.create_writer(@create_writer_attrs)
 
-      assert {:ok, %Stories{} = stories} = Publications.create_stories(create_valid_attrs(writer, @valid_attrs))
-      assert stories.body == "some body"
-      assert stories.description == "some description"
-      assert stories.title == "some title"
+      assert {:ok, %Articles{} = articles} = Publications.create_articles(create_valid_attrs(writer, @valid_attrs))
+      assert articles.content == "some content"
+      assert articles.description == "some description"
+      assert articles.title == "some title"
     end
 
-    test "create_stories/1 with invalid data returns error changeset" do
+    test "create_articles/1 with invalid data returns error changeset" do
       {:ok, writer}  = Accounts.create_writer(@create_writer_attrs)
 
-      assert {:error, %Ecto.Changeset{}} = Publications.create_stories(create_valid_attrs(writer, @invalid_attrs))
+      assert {:error, %Ecto.Changeset{}} = Publications.create_articles(create_valid_attrs(writer, @invalid_attrs))
     end
 
-    test "update_stories/2 with valid data updates the stories" do
-      stories = stories_fixture()
-      assert {:ok, %Stories{} = stories} = Publications.update_stories(stories, @update_attrs)
-      assert stories.body == "some updated body"
-      assert stories.description == "some updated description"
-      assert stories.title == "some updated title"
+    test "update_articles/2 with valid data updates the articles" do
+      articles = articles_fixture()
+      assert {:ok, %Articles{} = articles} = Publications.update_articles(articles, @update_attrs)
+      assert articles.content == "some updated content"
+      assert articles.description == "some updated description"
+      assert articles.title == "some updated title"
     end
 
-    test "update_stories/2 with invalid data returns error changeset" do
-      stories = stories_fixture()
-      assert {:error, %Ecto.Changeset{}} = Publications.update_stories(stories, @invalid_attrs)
-      assert stories == Publications.get_stories!(stories.id)
+    test "update_articles/2 with invalid data returns error changeset" do
+      articles = articles_fixture()
+      assert {:error, %Ecto.Changeset{}} = Publications.update_articles(articles, @invalid_attrs)
+      assert articles == Publications.get_articles!(articles.id)
     end
 
-    test "delete_stories/1 deletes the stories" do
-      stories = stories_fixture()
-      assert {:ok, %Stories{}} = Publications.delete_stories(stories)
-      assert_raise Ecto.NoResultsError, fn -> Publications.get_stories!(stories.id) end
+    test "delete_articles/1 deletes the articles" do
+      articles = articles_fixture()
+      assert {:ok, %Articles{}} = Publications.delete_articles(articles)
+      assert_raise Ecto.NoResultsError, fn -> Publications.get_articles!(articles.id) end
     end
 
-    test "change_stories/1 returns a stories changeset" do
-      stories = stories_fixture()
-      assert %Ecto.Changeset{} = Publications.change_stories(stories)
+    test "change_articles/1 returns a articles changeset" do
+      articles = articles_fixture()
+      assert %Ecto.Changeset{} = Publications.change_articles(articles)
     end
   end
 end

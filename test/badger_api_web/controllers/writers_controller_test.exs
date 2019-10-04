@@ -36,7 +36,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  defp put_profile_image(attrs \\ %{}) do
+  defp put_profile_image(attrs) do
 
     Map.put(attrs, "avatar", Path.expand("test/static/profile-pic.jpg"))
   end
@@ -73,6 +73,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
     test "renders data when profile image is sent" , %{conn: conn} do
       conn = post(conn, Routes.writers_path(conn, :create), writers: put_profile_image(@create_attrs))
+      assert json_response(conn, 201)
     end
   end
   describe "account session for writers" do

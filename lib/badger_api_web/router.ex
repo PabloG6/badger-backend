@@ -15,7 +15,7 @@ defmodule BadgerApiWeb.Router do
     pipe_through [:api, :auth]
     resources "/topics", TopicsController, except: [:new, :edit], param: "slug"
     resources "/writers", WritersController, except: [:new, :edit, :show, :index, :create]
-    resources "/stories", StoriesController, except: [:new, :edit]
+    resources "/articles", ArticlesController, except: [:new, :edit]
     post "/follow", RelationshipsController, :create
     delete "/unfollow/:id", RelationshipsController, :delete
     get "/followers", RelationshipsController, :followers
@@ -25,7 +25,7 @@ defmodule BadgerApiWeb.Router do
 
   scope "/api", BadgerApiWeb do
     pipe_through [:api, :auth]
-    get "/topics/:slug/stories", TopicsController, :filter_stories
+    get "/topics/:slug/articles", TopicsController, :filter_articles
     post "/topics/:slug/follow", TopicsController, :follow_topics
     delete "/topics/:slug/unfollow", TopicsController, :unfollow_topics
     get "/topics/subscriptions/following", TopicsController, :following

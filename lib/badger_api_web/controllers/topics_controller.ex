@@ -27,9 +27,9 @@ defmodule BadgerApiWeb.TopicsController do
 
 
 
-  def filter_stories(conn, %{"slug" => slug}) do
-    stories = Badge.filter_stories!(slug)
-    render(conn, "show_stories.json", stories: stories)
+  def filter_articles(conn, %{"slug" => slug}) do
+    articles = Badge.filter_articles!(slug)
+    render(conn, "show_articles.json", articles: articles)
   end
 
   def follow_topics(conn, %{"slug" => slug}) do

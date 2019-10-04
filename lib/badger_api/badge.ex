@@ -5,7 +5,7 @@ defmodule BadgerApi.Badge do
 
   import Ecto.Query, warn: false
   alias BadgerApi.Repo
-  alias BadgerApi.Publications.Stories
+  alias BadgerApi.Publications.Articles
   alias BadgerApi.Badge.Topics
 
   @doc """
@@ -40,10 +40,10 @@ defmodule BadgerApi.Badge do
   def get_topics_by_slug!(slug), do: Repo.get_by!(Topics, slug: slug)
   def get_topics_by_slug(slug), do: Repo.get_by(Topics, slug: slug)
 
-  def filter_stories!(slug) do
+  def filter_articles!(slug) do
 
-    query = from stories in Stories,
-            left_join: category in assoc(stories, :categories),
+    query = from articles in Articles,
+            left_join: category in assoc(articles, :categories),
 
             where: category.slug == ^slug,
             preload:  [:categories, :writer]

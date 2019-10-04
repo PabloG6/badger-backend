@@ -58,7 +58,6 @@ defmodule BadgerApiWeb.WritersController do
     with {:ok, writer} <- BadgerApi.Accounts.authenticate_writer(%{identifier: identifier, password: password}) do
         conn
       |> put_status(:ok)
-      |> put_session(:current_writer_id, writer.id)
       |> login_reply(writer)
 
     else
@@ -71,13 +70,14 @@ defmodule BadgerApiWeb.WritersController do
 
 
   defp login_reply(conn, writer) do
-    {:ok, token, _claims} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
+
+    token = BadgerApi.Auth.Guardian.Plug.sign_in(conn, writer)
+            |> BadgerApi.Auth.Guardian.Plug.current_token
+
     conn
     |> put_session(:current_writer_id, writer.id)
-    |> put_status(:ok)
-    |> BadgerApi.Auth.Guardian.Plug.sign_in(writer)
     |> put_view(BadgerApiWeb.WritersView)
-    |> render("login.json", writers: writer, token: token)
+    |> render(:login, writers: writer, token: token)
   end
 
 

@@ -1,7 +1,6 @@
-defmodule BadgerApi.Avatar do
+defmodule BadgerApi.CoverPhoto do
   use Arc.Definition
   use Arc.Ecto.Definition
-
   # Include ecto support (requires package arc_ecto installed):
   # use Arc.Ecto.Definition
 
@@ -19,11 +18,11 @@ defmodule BadgerApi.Avatar do
   # def validate({file, _}) do
   #   ~w(.jpg .jpeg .gif .png) |> Enum.member?(Path.extname(file.file_name))
   # end
+    def validate({file, _}) do
+      ~w(.jpg .jpeg .png) |> Enum.member?(Path.extname(file.file_name))
 
-  def validate({file, _}) do
+    end
 
-    ~w(.jpg .jpeg .png) |> Enum.member?(Path.extname(file.file_name))
-  end
 
   # Define a thumbnail transformation:
   # def transform(:thumb, _) do
@@ -35,19 +34,14 @@ defmodule BadgerApi.Avatar do
   #   version
   # end
 
-  def filename(_version, {_file, _scope}) do
-    "avatar"
-  end
-
   # Override the storage directory:
   # def storage_dir(version, {file, scope}) do
   #   "uploads/user/avatars/#{scope.id}"
   # end
 
-  def storage_dir(_version, {_file, scope}) do
-    "uploads/writers/#{scope.username}/"
+  def storage_dir(_version, {_, scope}) do
+    "uploads/writers/#{scope.username}/gallery"
   end
-
   # Provide a default URL if there hasn't been a file uploaded
   # def default_url(version, scope) do
   #   "/images/avatars/default_#{version}.png"

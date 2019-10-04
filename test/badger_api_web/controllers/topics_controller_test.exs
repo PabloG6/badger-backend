@@ -23,18 +23,18 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   }
 
   @story_attrs %{description: "some story description",
-                    body: "some story body",
+                    content: "some story content",
                     title: "some title",
                     categories: ["topic one", "topic two", "topic three", "some title"]
                     }
 
   @other_story_attrs %{description: "some other story description",
-                          body: "some ohter story body",
+                          content: "some ohter story content",
                           title: "some other title",
                           categories: ["topic one", "topic four", "topic five", "some title"]}
 
   @third_story_attrs %{description: "some third story description",
-                        body: "some third story body",
+                        content: "some third story content",
                         title: "some third title",
                         categories: ["topic seven", "topic eight", "topic nine"]}
   def fixture(:topics) do
@@ -113,13 +113,13 @@ defmodule BadgerApiWeb.TopicsControllerTest do
     end
   end
 
-  describe "filter stories" do
-    setup [:create_topics, :create_stories]
-    @tag :filter_stories
-    test "filter stories by topic" , %{conn: conn, stories: stories, topics: topics} do
-      conn = get(conn, Routes.topics_path(conn, :filter_stories, topics.slug))
+  describe "filter articles" do
+    setup [:create_topics, :create_articles]
+    @tag :filter_articles
+    test "filter articles by topic" , %{conn: conn, articles: articles, topics: topics} do
+      conn = get(conn, Routes.topics_path(conn, :filter_articles, topics.slug))
       assert Enum.map(json_response(conn, 200)["data"], &(&1["id"])) ==
-        Enum.map(stories, &(&1.id))
+        Enum.map(articles, &(&1.id))
     end
   end
 
@@ -175,13 +175,13 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   end
 
 
-  defp create_stories(%{writer: writer}) do
+  defp create_articles(%{writer: writer}) do
 
 
-    {:ok, stories} = Publications.create_stories(Map.put(@story_attrs, :writer_id, writer.id))
-    {:ok, other_stories} = Publications.create_stories(Map.put(@other_story_attrs, :writer_id, writer.id))
-    {:ok, third_stories} = Publications.create_stories(Map.put(@third_story_attrs, :writer_id, writer.id))
+    {:ok, articles} = Publications.create_articles(Map.put(@story_attrs, :writer_id, writer.id))
+    {:ok, other_articles} = Publications.create_articles(Map.put(@other_story_attrs, :writer_id, writer.id))
+    {:ok, third_articles} = Publications.create_articles(Map.put(@third_story_attrs, :writer_id, writer.id))
 
-    {:ok, stories: [stories, other_stories,], third_stories: third_stories}
+    {:ok, articles: [articles, other_articles,], third_articles: third_articles}
   end
 end

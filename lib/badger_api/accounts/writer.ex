@@ -3,7 +3,7 @@ defmodule BadgerApi.Accounts.Writer do
   use Arc.Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias BadgerApi.Publications.Stories
+  alias BadgerApi.Publications.Articles
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts.Relationships
   alias BadgerApi.Repo
@@ -19,9 +19,9 @@ defmodule BadgerApi.Accounts.Writer do
 
     field :password, :string, virtual: true
     field :password_hash, :string
-    has_many :stories, Stories
-    many_to_many :writes_about_topics, Topics, join_through: "writers_topics", on_delete: :delete_all, on_replace: :delete
-    many_to_many :interested_in_topics, Topics, join_through: "topics_interests", on_delete: :delete_all
+    has_many :articles, Articles
+    many_to_many :writes_about_topics, Topics, join_through: "writes_about_topics", on_delete: :delete_all, on_replace: :delete
+    many_to_many :interested_in_topics, Topics, join_through: "interested_in_topics", on_delete: :delete_all
 
     has_many :active_relationships, Relationships, foreign_key: :following_id
     has_many :passive_relationships, Relationships, foreign_key: :follower_id

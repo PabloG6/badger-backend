@@ -10,18 +10,18 @@ defmodule BadgerApiWeb.TopicsView do
     %{data: render_one(topics, TopicsView, "topics.json")}
   end
 
-  def render("show_stories.json", %{stories: stories}) do
+  def render("show_articles.json", %{articles: articles}) do
 
-    %{data: render_many(stories, TopicsView, "stories.json", as: :stories)}
+    %{data: render_many(articles, TopicsView, "articles.json", as: :articles)}
   end
 
-  def render("stories.json", %{stories: stories}) do
-    topics = Enum.map(stories.categories, &%{title: &1.title, slug: &1.slug, id: &1.id})
-    writer = stories.writer
-    %{id: stories.id,
-      body: stories.body,
-      description: stories.description,
-      title: stories.title,
+  def render("articles.json", %{articles: articles}) do
+    topics = Enum.map(articles.categories, &%{title: &1.title, slug: &1.slug, id: &1.id})
+    writer = articles.writer
+    %{id: articles.id,
+      content: articles.content,
+      description: articles.description,
+      title: articles.title,
       categories: topics,
       writer: %{
         id: writer.id,

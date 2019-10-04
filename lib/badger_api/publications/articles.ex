@@ -1,29 +1,33 @@
-defmodule BadgerApi.Publications.Stories do
+defmodule BadgerApi.Publications.Articles do
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
   alias BadgerApi.Repo
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts.Writer
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "stories" do
-    field :body, :string
+  schema "articles" do
+    field :content, :string
+    field :cover_photo, BadgerApi.CoverPhoto.Type
+
     field :description, :string
     field :title, :string
-    many_to_many :categories, Topics, join_through: "categories_stories", on_replace: :delete, join_keys: [stories_id: :id, categories_id: :id]
+    many_to_many :categories, Topics, join_through: "categories_articles", on_replace: :delete, join_keys: [articles_id: :id, categories_id: :id]
 
     belongs_to :writer, Writer, type: :binary_id
     timestamps()
   end
 
   @doc false
-  def changeset(stories, attrs) do
+  def changeset(articles, attrs) do
 
-    stories
-    |> cast(attrs, [:title, :body, :description, :writer_id])
+    articles
+    |> cast(attrs, [:title, :content, :description, :writer_id])
+    |> cast_attachments(attrs, [:cover_photo])
     |> put_assoc(:categories, parse_categories(attrs))
     |> foreign_key_constraint(:writer_id)
-    |> validate_required([:title, :body, :description, :writer_id])
+    |> validate_required([:title, :content, :description, :writer_id])
   end
 
 

@@ -14,18 +14,18 @@ defmodule BadgerApi.BadgeTest do
     @writer_attrs %{name: "some writer", username: "@somewriter", email: "somewriter@gmail.com",  password: "password"}
 
     @story_attrs %{description: "some story description",
-                    body: "some story body",
+                    content: "some story content",
                     title: "some title",
                     categories: ["topic one", "topic two", "topic three", ]
                     }
     @topics_attrs %{title: "topic one"}
     @other_story_attrs %{description: "some other story description",
-                          body: "some ohter story body",
+                          content: "some ohter story content",
                           title: "some other title",
                           categories: ["topic one", "topic four", "topic five"]}
 
     @third_story_attrs %{description: "some third story description",
-                        body: "some third story body",
+                        content: "some third story content",
                         title: "some third title",
                         categories: ["topic seven", "topic eight", "topic nine"]}
     def topics_fixture(attrs \\ %{}) do
@@ -39,14 +39,14 @@ defmodule BadgerApi.BadgeTest do
 
 
 
-    def filter_stories() do
+    def filter_articles() do
       {:ok, writer} = Accounts.create_writer(@writer_attrs)
 
-      {:ok, stories} = Publications.create_stories(Map.put(@story_attrs, :writer_id, writer.id))
-      {:ok, other_stories} = Publications.create_stories(Map.put(@other_story_attrs, :writer_id, writer.id))
-      {:ok, third_stories} = Publications.create_stories(Map.put(@third_story_attrs, :writer_id, writer.id))
+      {:ok, articles} = Publications.create_articles(Map.put(@story_attrs, :writer_id, writer.id))
+      {:ok, other_articles} = Publications.create_articles(Map.put(@other_story_attrs, :writer_id, writer.id))
+      {:ok, third_articles} = Publications.create_articles(Map.put(@third_story_attrs, :writer_id, writer.id))
 
-      {:ok, [stories, other_stories,], writer, third_stories}
+      {:ok, [articles, other_articles,], writer, third_articles}
     end
 
     test "list_topics/0 returns all topics" do
@@ -94,12 +94,12 @@ defmodule BadgerApi.BadgeTest do
       assert %Ecto.Changeset{} = Badge.change_topics(topics)
     end
 
-    @tag :filter_stories
-    test "filter_stories/1 returns a list of stories based on slug passed" do
+    @tag :filter_articles
+    test "filter_articles/1 returns a list of articles based on slug passed" do
       topic = topics_fixture(@topics_attrs)
-      {:ok, stories, _writer, _third_stories} = filter_stories()
+      {:ok, articles, _writer, _third_articles} = filter_articles()
 
-      assert Enum.map(stories, &(&1.id))== Enum.map(Badge.filter_stories!(topic.slug), &(&1.id))
+      assert Enum.map(articles, &(&1.id))== Enum.map(Badge.filter_articles!(topic.slug), &(&1.id))
     end
 
 

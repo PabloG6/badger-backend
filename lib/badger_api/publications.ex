@@ -5,54 +5,55 @@ defmodule BadgerApi.Publications do
 
   import Ecto.Query, warn: false
   alias BadgerApi.Repo
-  alias BadgerApi.Publications.Stories
+  alias BadgerApi.Publications.Articles
+  alias BadgerApi.Accounts.Relationships
 
   @doc """
-  Returns the list of stories.
+  Returns the list of articles.
 
   ## Examples
 
-      iex> list_stories()
-      [%Stories{}, ...]
+      iex> list_articles()
+      [%Articles{}, ...]
 
   """
-  def list_stories do
-    Repo.all(Stories) |> Repo.preload([:categories, :writer])
+  def list_articles do
+    Repo.all(Articles) |> Repo.preload([:categories, :writer])
   end
 
   @doc """
-  Gets a single stories.
+  Gets a single articles.
 
-  Raises `Ecto.NoResultsError` if the Stories does not exist.
+  Raises `Ecto.NoResultsError` if the Articles does not exist.
 
   ## Examples
 
-      iex> get_stories!(123)
-      %Stories{}
+      iex> get_articles!(123)
+      %Articles{}
 
-      iex> get_stories!(456)
+      iex> get_articles!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_stories!(id), do: Repo.get!(Stories, id) |> Repo.preload(:categories)
+  def get_articles!(id), do: Repo.get!(Articles, id) |> Repo.preload(:categories)
 
   @doc """
-  Creates a stories.
+  Creates a articles.
 
   ## Examples
 
-      iex> create_stories(%{field: value})
-      {:ok, %Stories{}}
+      iex> create_articles(%{field: value})
+      {:ok, %Articles{}}
 
-      iex> create_stories(%{field: bad_value})
+      iex> create_articles(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
 
 
-  def create_stories(attrs \\ %{}) do
-    %Stories{}
-    |> Stories.changeset(attrs)
+  def create_articles(attrs \\ %{}) do
+    %Articles{}
+    |> Articles.changeset(attrs)
     |> Repo.insert
 
 
@@ -60,50 +61,65 @@ defmodule BadgerApi.Publications do
 
 
   @doc """
-  Updates a stories.
+  Updates a articles.
 
   ## Examples
 
-      iex> update_stories(stories, %{field: new_value})
-      {:ok, %Stories{}}
+      iex> update_articles(articles, %{field: new_value})
+      {:ok, %Articles{}}
 
-      iex> update_stories(stories, %{field: bad_value})
+      iex> update_articles(articles, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_stories(%Stories{} = stories, attrs) do
+  def update_articles(%Articles{} = articles, attrs) do
 
-    stories
-    |> Stories.changeset(attrs)
+    articles
+    |> Articles.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a Stories.
+  Deletes a Articles.
 
   ## Examples
 
-      iex> delete_stories(stories)
-      {:ok, %Stories{}}
+      iex> delete_articles(articles)
+      {:ok, %Articles{}}
 
-      iex> delete_stories(stories)
+      iex> delete_articles(articles)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_stories(%Stories{} = stories) do
-    Repo.delete(stories)
+  def delete_articles(%Articles{} = articles) do
+    Repo.delete(articles)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking stories changes.
+  Returns an `%Ecto.Changeset{}` for tracking articles changes.
 
   ## Examples
 
-      iex> change_stories(stories)
-      %Ecto.Changeset{source: %Stories{}}
+      iex> change_articles(articles)
+      %Ecto.Changeset{source: %Articles{}}
 
   """
-  def change_stories(%Stories{} = stories) do
-    Stories.changeset(stories, %{})
+  def change_articles(%Articles{} = articles) do
+    Articles.changeset(articles, %{})
   end
+
+  #  @doc """
+  # Returns an `%Articles{}` for seeing list of articles.
+  # iex> get_feed()
+  # %Articles{}
+  # """
+  # def get_feed(writer_id) do
+  #   query = from articles in Articles,
+  #           join: r in Relationships, on: r.follower_id == ^writer_id,
+  #           join: t in topics
+
+
+
+  # end
+
 end

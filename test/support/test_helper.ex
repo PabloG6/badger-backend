@@ -7,8 +7,8 @@ defmodule BadgerApi.Publications.TestHelper do
     Accounts.create_writer(changeset)
   end
 
-  def create_stories(writer, %{} = changeset) do
-    writer |> Ecto.build_assoc(:stories, changeset) |> Publications.create_stories()
+  def create_articles(writer, %{} = changeset) do
+    writer |> Ecto.build_assoc(:articles, changeset) |> Publications.create_articles()
 
   end
 
