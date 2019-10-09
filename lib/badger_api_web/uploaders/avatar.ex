@@ -21,7 +21,6 @@ defmodule BadgerApi.Avatar do
   # end
 
   def validate({file, _}) do
-
     ~w(.jpg .jpeg .png) |> Enum.member?(Path.extname(file.file_name))
   end
 

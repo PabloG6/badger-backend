@@ -3,46 +3,49 @@ defmodule BadgerApi.AccountsTest do
 
   alias BadgerApi.Accounts
   alias BadgerApi.Badge
+
   describe "writers" do
     alias BadgerApi.Accounts.Writer
 
-    @valid_attrs %{description: "some description",
-    email: "some@email.com",
-     name: "some name",
-     username: "@someusername",
-     writes_about_topics: ["hip hop", "cooking", "lifestyle"],
-    password: "some password"}
-
+    @valid_attrs %{
+      description: "some description",
+      email: "some@email.com",
+      name: "some name",
+      username: "@someusername",
+      writes_about_topics: ["hip hop", "cooking", "lifestyle"],
+      password: "some password"
+    }
 
     @lifestyle_hack_attrs %{title: "Topics one"}
 
+    @valid_attrs_interest %{
+      description: "some description",
+      email: "some@email.com",
+      name: "some name",
+      username: "@someusername",
+      password: "some password"
+    }
 
-
-    @valid_attrs_interest %{description: "some description",
-    email: "some@email.com",
-     name: "some name",
-     username: "@someusername",
-
-     password: "some password"}
-
-    @update_attrs %{description: "some updated description",
-    email: "someupdated@email.com",
-    name: "some updated name",
-    username: "@someupdatedusername",
-    password: "some updated password"}
+    @update_attrs %{
+      description: "some updated description",
+      email: "someupdated@email.com",
+      name: "some updated name",
+      username: "@someupdatedusername",
+      password: "some updated password"
+    }
     @invalid_attrs %{description: nil, email: nil, name: nil, username: nil, password: nil}
 
-
     def writer_fixture(attrs \\ %{}) do
-      {:ok, writer} = attrs
-                      |> Enum.into(@valid_attrs)
-                      |> Accounts.create_writer()
-      writer
+      {:ok, writer} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Accounts.create_writer()
 
+      writer
     end
 
     def topics_fixture(attrs \\ %{}) do
-      {:ok, topics} = attrs |> Enum.into(@lifestyle_hack_attrs) |> Badge.create_topics
+      {:ok, topics} = attrs |> Enum.into(@lifestyle_hack_attrs) |> Badge.create_topics()
       topics
     end
 
@@ -62,7 +65,6 @@ defmodule BadgerApi.AccountsTest do
       assert writer.name == writer_check.name
       assert writer.email == writer_check.email
       assert writer.description == writer_check.description
-
     end
 
     test "create_writer/1 with valid data that contains writes_about_topics" do
@@ -81,6 +83,7 @@ defmodule BadgerApi.AccountsTest do
       assert writer.name == "some name"
       assert writer.username == "@someusername"
     end
+
     test "create_writer/1 with valid data creates a writer" do
       assert {:ok, %Writer{} = writer} = Accounts.create_writer(@valid_attrs)
       assert writer.description == "some description"
@@ -108,9 +111,6 @@ defmodule BadgerApi.AccountsTest do
     test "update_writer/2 with invalid data returns error changeset" do
       writer = writer_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_writer(writer, @invalid_attrs)
-
-
-
     end
 
     test "delete_writer/1 deletes the writer" do
@@ -125,12 +125,9 @@ defmodule BadgerApi.AccountsTest do
     end
   end
 
-
-
   describe "relationships" do
     alias BadgerApi.Accounts.Writer
     alias BadgerApi.Accounts.Relationships
-
 
     def relationships_fixture(:relationships) do
       {:ok, writer} = Accounts.create_writer(@valid_attrs)
@@ -146,35 +143,46 @@ defmodule BadgerApi.AccountsTest do
     {%Writer{}, %Writer{}}
     """
     def relationships_fixture(:follow) do
-      {:ok , writer} = Accounts.create_writer(@valid_attrs)
+      {:ok, writer} = Accounts.create_writer(@valid_attrs)
       {:ok, other_writer} = Accounts.create_writer(@update_attrs)
 
       {writer, other_writer}
     end
+
     test "followers/1 returns all followers for specific user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
-      assert Enum.map(Accounts.following(first_writer.id), &%Writer{&1 | writes_about_topics: []}) == [%Writer{second_writer | password: nil}]
 
+      assert Enum.map(Accounts.following(first_writer.id), &%Writer{&1 | writes_about_topics: []}) ==
+               [%Writer{second_writer | password: nil}]
     end
-
 
     test "following/1 returns all users following this user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
-      assert Enum.map(Accounts.followers(second_writer.id), &%Writer{&1 | writes_about_topics: []})
-       == [%Writer{first_writer | password: nil, writes_about_topics: []}]
-    end
 
+      assert Enum.map(
+               Accounts.followers(second_writer.id),
+               &%Writer{&1 | writes_about_topics: []}
+             ) ==
+               [%Writer{first_writer | password: nil, writes_about_topics: []}]
+    end
 
     test "follow/1 follows a specific user" do
       {writer, writer_to_follow} = relationships_fixture(:follow)
-     {:ok, relationship} = Accounts.follow(writer.id, writer_to_follow.id)
+      {:ok, relationship} = Accounts.follow(writer.id, writer_to_follow.id)
       assert Accounts.is_following?(writer.id, writer_to_follow.id) == relationship
     end
 
     test "unfollow/1 unfollows a specific user" do
-      {writer, writer_to_unfollow, %Relationships{} = followed_relationship} = relationships_fixture(:relationships)
-      {:ok, %Relationships{} = unfollowed_relationship} = Accounts.unfollow(writer.id, writer_to_unfollow.id)
-      assert %Relationships{unfollowed_relationship | __meta__: nil} == %Relationships{followed_relationship | __meta__: nil}
+      {writer, writer_to_unfollow, %Relationships{} = followed_relationship} =
+        relationships_fixture(:relationships)
+
+      {:ok, %Relationships{} = unfollowed_relationship} =
+        Accounts.unfollow(writer.id, writer_to_unfollow.id)
+
+      assert %Relationships{unfollowed_relationship | __meta__: nil} == %Relationships{
+               followed_relationship
+               | __meta__: nil
+             }
     end
 
     test "is_following?/1 check if one user is following another" do
@@ -182,9 +190,5 @@ defmodule BadgerApi.AccountsTest do
       relationship_check = Accounts.is_following?(first_writer.id, second_writer.id)
       assert relationship == relationship_check
     end
-
-
-
-
   end
 end

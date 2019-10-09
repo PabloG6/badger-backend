@@ -3,7 +3,7 @@ defmodule BadgerApiWeb.TopicsController do
 
   alias BadgerApi.Badge
   alias BadgerApi.Badge.Topics
-  alias BadgerApi.Context.TopicsInterest
+  alias BadgerApi.Context.InterestedinTopics
   alias BadgerApi.Context
   action_fallback BadgerApiWeb.FallbackController
 
@@ -11,8 +11,6 @@ defmodule BadgerApiWeb.TopicsController do
     topics = Badge.list_topics()
     render(conn, "index.json", topics: topics)
   end
-
-
 
   def create(conn, %{"topics" => topics_params}) do
     with {:ok, %Topics{} = topics} <- Badge.create_topics(topics_params) do
@@ -23,10 +21,6 @@ defmodule BadgerApiWeb.TopicsController do
     end
   end
 
-
-
-
-
   def filter_articles(conn, %{"slug" => slug}) do
     articles = Badge.filter_articles!(slug)
     render(conn, "show_articles.json", articles: articles)
@@ -35,11 +29,11 @@ defmodule BadgerApiWeb.TopicsController do
   def follow_topics(conn, %{"slug" => slug}) do
     writer = Guardian.Plug.current_resource(conn)
     topics = Badge.get_topics_by_slug!(slug)
-    with {:ok, %TopicsInterest{}} <- Context.create_topics_interest(%{writer_id: writer.id, topics_id: topics.id}) do
+
+    with {:ok, %InterestedinTopics{}} <-
+           Context.create_topics_interest(%{writer_id: writer.id, topics_id: topics.id}) do
       send_resp(conn, :created, "")
-
     end
-
   end
 
   def unfollow_topics(conn, %{"slug" => slug}) do
@@ -47,13 +41,10 @@ defmodule BadgerApiWeb.TopicsController do
     topics = Badge.get_topics_by_slug!(slug)
     topics_interest = Context.get_specific_topics_interest!(writer.id, topics.id)
 
-    with {:ok, %TopicsInterest{}} <- Context.delete_topics_interest(topics_interest) do
+    with {:ok, %InterestedinTopics{}} <- Context.delete_topics_interest(topics_interest) do
       send_resp(conn, :no_content, "")
     end
-
-
   end
-
 
   def following(conn, _params) do
     writer = Guardian.Plug.current_resource(conn)
@@ -64,21 +55,18 @@ defmodule BadgerApiWeb.TopicsController do
   def is_following?(conn, %{"slug" => slug}) do
     writer = Guardian.Plug.current_resource(conn)
     topics = Badge.get_topics_by_slug(slug)
-    case Context.is_following?(writer.id, topics.id) do
 
+    case Context.is_following?(writer.id, topics.id) do
       true -> send_resp(conn, :no_content, "")
       false -> {:error, :not_found}
       _ -> {:error, :not_found}
-
     end
   end
 
   def show(conn, %{"slug" => slug}) do
     topics = Badge.get_topics_by_slug!(slug)
     render(conn, "show.json", topics: topics)
-
   end
-
 
   def update(conn, %{"slug" => slug, "topics" => topics_params}) do
     topics = Badge.get_topics_by_slug!(slug)
@@ -95,6 +83,4 @@ defmodule BadgerApiWeb.TopicsController do
       send_resp(conn, :no_content, "")
     end
   end
-
-
 end

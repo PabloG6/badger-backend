@@ -6,7 +6,5 @@ defmodule BadgerApi.Repo.Migrations.DeleteCategoriesArticlesTimestamps do
       remove :inserted_at
       remove :updated_at
     end
-
-
   end
 end

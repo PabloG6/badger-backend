@@ -18,7 +18,7 @@ defmodule BadgerApiWeb.RelationshipsView do
     %{
       id: writer.id,
       username: writer.username,
-      name: writer.name,
+      name: writer.name
     }
   end
 

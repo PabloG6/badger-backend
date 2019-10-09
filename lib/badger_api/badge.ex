@@ -41,24 +41,14 @@ defmodule BadgerApi.Badge do
   def get_topics_by_slug(slug), do: Repo.get_by(Topics, slug: slug)
 
   def filter_articles!(slug) do
-
-    query = from articles in Articles,
-            left_join: category in assoc(articles, :categories),
-
-            where: category.slug == ^slug,
-            preload:  [:categories, :writer]
-
+    query =
+      from articles in Articles,
+        left_join: category in assoc(articles, :categories),
+        where: category.slug == ^slug,
+        preload: [:categories, :writer]
 
     Repo.all(query)
   end
-
-
-
-
-
-
-
-
 
   @doc """
   Creates a topics.
@@ -73,8 +63,7 @@ defmodule BadgerApi.Badge do
 
   """
   def create_topics(topics \\ %{}) do
-    Topics.changeset(%Topics{}, topics) |> Repo.insert
-
+    Topics.changeset(%Topics{}, topics) |> Repo.insert()
   end
 
   @doc """
@@ -92,7 +81,7 @@ defmodule BadgerApi.Badge do
   def update_topics(%Topics{} = topics, attrs) do
     topics
     |> Topics.changeset(attrs)
-    |> Repo.update
+    |> Repo.update()
   end
 
   @doc """
@@ -123,8 +112,4 @@ defmodule BadgerApi.Badge do
   def change_topics(%Topics{} = topics) do
     Topics.changeset(topics, %{})
   end
-
-
-
-
 end

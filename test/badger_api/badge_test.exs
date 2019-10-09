@@ -11,23 +11,33 @@ defmodule BadgerApi.BadgeTest do
     @valid_attrs %{description: "some description", title: "some title"}
     @update_attrs %{description: "some updated description", title: "some updated title"}
     @invalid_attrs %{description: nil, title: nil}
-    @writer_attrs %{name: "some writer", username: "@somewriter", email: "somewriter@gmail.com",  password: "password"}
+    @writer_attrs %{
+      name: "some writer",
+      username: "@somewriter",
+      email: "somewriter@gmail.com",
+      password: "password"
+    }
 
-    @story_attrs %{description: "some story description",
-                    content: "some story content",
-                    title: "some title",
-                    categories: ["topic one", "topic two", "topic three", ]
-                    }
+    @story_attrs %{
+      description: "some story description",
+      content: "some story content",
+      title: "some title",
+      categories: ["topic one", "topic two", "topic three"]
+    }
     @topics_attrs %{title: "topic one"}
-    @other_story_attrs %{description: "some other story description",
-                          content: "some ohter story content",
-                          title: "some other title",
-                          categories: ["topic one", "topic four", "topic five"]}
+    @other_story_attrs %{
+      description: "some other story description",
+      content: "some ohter story content",
+      title: "some other title",
+      categories: ["topic one", "topic four", "topic five"]
+    }
 
-    @third_story_attrs %{description: "some third story description",
-                        content: "some third story content",
-                        title: "some third title",
-                        categories: ["topic seven", "topic eight", "topic nine"]}
+    @third_story_attrs %{
+      description: "some third story description",
+      content: "some third story content",
+      title: "some third title",
+      categories: ["topic seven", "topic eight", "topic nine"]
+    }
     def topics_fixture(attrs \\ %{}) do
       {:ok, topics} =
         attrs
@@ -37,16 +47,18 @@ defmodule BadgerApi.BadgeTest do
       topics
     end
 
-
-
     def filter_articles() do
       {:ok, writer} = Accounts.create_writer(@writer_attrs)
 
       {:ok, articles} = Publications.create_articles(Map.put(@story_attrs, :writer_id, writer.id))
-      {:ok, other_articles} = Publications.create_articles(Map.put(@other_story_attrs, :writer_id, writer.id))
-      {:ok, third_articles} = Publications.create_articles(Map.put(@third_story_attrs, :writer_id, writer.id))
 
-      {:ok, [articles, other_articles,], writer, third_articles}
+      {:ok, other_articles} =
+        Publications.create_articles(Map.put(@other_story_attrs, :writer_id, writer.id))
+
+      {:ok, third_articles} =
+        Publications.create_articles(Map.put(@third_story_attrs, :writer_id, writer.id))
+
+      {:ok, [articles, other_articles], writer, third_articles}
     end
 
     test "list_topics/0 returns all topics" do
@@ -60,7 +72,6 @@ defmodule BadgerApi.BadgeTest do
     end
 
     test "create_topics/1 with valid data creates a topics" do
-
       assert {:ok, %Topics{} = topics} = Badge.create_topics(@valid_attrs)
       assert topics.description == "some description"
       assert topics.title == "some title"
@@ -99,10 +110,7 @@ defmodule BadgerApi.BadgeTest do
       topic = topics_fixture(@topics_attrs)
       {:ok, articles, _writer, _third_articles} = filter_articles()
 
-      assert Enum.map(articles, &(&1.id))== Enum.map(Badge.filter_articles!(topic.slug), &(&1.id))
+      assert Enum.map(articles, & &1.id) == Enum.map(Badge.filter_articles!(topic.slug), & &1.id)
     end
-
-
-
   end
 end

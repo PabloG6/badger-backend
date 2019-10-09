@@ -3,6 +3,7 @@ defmodule BadgerApi.Context.WritesAboutTopics do
   import Ecto.Changeset
   alias BadgerApi.Accounts.Writer
   alias BadgerApi.Badge.Topics
+
   schema "writes_about_topics" do
     belongs_to :writer, Writer, type: :binary_id
     belongs_to :topics, Topics, type: :binary_id

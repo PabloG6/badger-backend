@@ -47,10 +47,10 @@ defmodule BadgerApi.MixProject do
       {:google_api_storage, "~> 0.13.0"},
       {:arc_gcs, "~> 0.1.0"},
       {:slugify, "~> 1.2"},
-      {:uuid, "~> 1.1" },
+      {:uuid, "~> 1.1"},
       {:arc_ecto, "~> 0.11.1"},
       {:goth, "~> 1.1.0"},
-      {:arc, "~> 0.11.0"} ,
+      {:arc, "~> 0.11.0"}
     ]
   end
 

@@ -2,6 +2,7 @@ defmodule BadgerApi.Accounts.Relationships do
   use Ecto.Schema
   import Ecto.Changeset
   alias BadgerApi.Accounts.Writer
+
   schema "relationships" do
     belongs_to :follower, Writer, type: :binary_id
     belongs_to :following, Writer, type: :binary_id
@@ -16,6 +17,5 @@ defmodule BadgerApi.Accounts.Relationships do
     |> validate_required([:follower_id, :following_id])
     |> foreign_key_constraint(:follower_id)
     |> foreign_key_constraint(:following_id)
-
   end
 end

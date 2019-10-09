@@ -18,11 +18,9 @@ defmodule BadgerApi.CoverPhoto do
   # def validate({file, _}) do
   #   ~w(.jpg .jpeg .gif .png) |> Enum.member?(Path.extname(file.file_name))
   # end
-    def validate({file, _}) do
-      ~w(.jpg .jpeg .png) |> Enum.member?(Path.extname(file.file_name))
-
-    end
-
+  def validate({file, _}) do
+    ~w(.jpg .jpeg .png) |> Enum.member?(Path.extname(file.file_name))
+  end
 
   # Define a thumbnail transformation:
   # def transform(:thumb, _) do
@@ -42,6 +40,7 @@ defmodule BadgerApi.CoverPhoto do
   def storage_dir(_version, {_, scope}) do
     "uploads/writers/#{scope.username}/gallery"
   end
+
   # Provide a default URL if there hasn't been a file uploaded
   # def default_url(version, scope) do
   #   "/images/avatars/default_#{version}.png"

@@ -21,6 +21,7 @@ defmodule BadgerApiWeb.Router do
     get "/followers", RelationshipsController, :followers
     get "/following", RelationshipsController, :following
     get "/following/show/:id", RelationshipsController, :show
+    get "/feed", ArticlesController, :list_feed_articles
   end
 
   scope "/api", BadgerApiWeb do
@@ -32,8 +33,6 @@ defmodule BadgerApiWeb.Router do
     get "/topics/is-following/:slug", TopicsController, :is_following?
   end
 
-
-
   scope "/api", BadgerApiWeb do
     pipe_through [:api]
     post "/login", WritersController, :login
@@ -41,6 +40,5 @@ defmodule BadgerApiWeb.Router do
     get "/writers/:id", WritersController, :show
     post "/writers", WritersController, :create
     get "/writers", WritersController, :index
-
   end
 end

@@ -4,8 +4,6 @@ defmodule BadgerApiWeb.WritersControllerTest do
   alias BadgerApi.Accounts
   alias BadgerApi.Accounts.Writer
 
-
-
   @create_attrs %{
     email: "some@email.com",
     name: "some name",
@@ -13,9 +11,6 @@ defmodule BadgerApiWeb.WritersControllerTest do
     username: "@someusername",
     writes_about_topics: ["dragon fruit", "entawak", "figs"]
   }
-
-
-
 
   @update_attrs %{
     email: "someupdated@email.com",
@@ -32,19 +27,15 @@ defmodule BadgerApiWeb.WritersControllerTest do
   end
 
   setup %{conn: conn} do
-
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
   defp put_profile_image(attrs) do
-
     Map.put(attrs, "avatar", Path.expand("test/static/profile-pic.jpg"))
   end
+
   describe "index" do
-
     test "lists all writer", %{conn: conn} do
-
-
       conn = get(conn, Routes.writers_path(conn, :index))
       assert json_response(conn, 200)["data"] == []
     end
@@ -52,7 +43,6 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
   describe "create writers" do
     test "renders writers when data is valid", %{conn: conn} do
-
       conn = post(conn, Routes.writers_path(conn, :create), writers: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
@@ -71,36 +61,53 @@ defmodule BadgerApiWeb.WritersControllerTest do
       assert json_response(conn, 422)["errors"] != %{}
     end
 
-    test "renders data when profile image is sent" , %{conn: conn} do
-      conn = post(conn, Routes.writers_path(conn, :create), writers: put_profile_image(@create_attrs))
+    test "renders data when profile image is sent", %{conn: conn} do
+      conn =
+        post(conn, Routes.writers_path(conn, :create), writers: put_profile_image(@create_attrs))
+
       assert json_response(conn, 201)
     end
   end
+
   describe "account session for writers" do
     setup [:create_writers]
-    test "renders sign in page when writer uses their username ", %{conn: conn, writers: %Writer{id: id} = writers} do
 
+    test "renders sign in page when writer uses their username ", %{
+      conn: conn,
+      writers: %Writer{id: id} = writers
+    } do
+      conn =
+        post(conn, Routes.writers_path(conn, :login),
+          identifier: writers.username,
+          password: writers.password
+        )
 
-      conn = post(conn, Routes.writers_path(conn, :login), identifier: writers.username, password: writers.password)
-      assert %{"id" => ^id,
-                "email" => "some@email.com",
-                "name" => "some name",
-                "username" => "@someusername",
-              } = json_response(conn, 200)["data"]
+      assert %{
+               "id" => ^id,
+               "email" => "some@email.com",
+               "name" => "some name",
+               "username" => "@someusername"
+             } = json_response(conn, 200)["data"]
     end
 
-    test "renders sign in page when writers uses their email", %{conn: conn, writers: %Writer{id: id} = writers} do
-      conn = post(conn, Routes.writers_path(conn, :login), identifier: writers.email, password: writers.password)
-      assert %{"id" => ^id,
-                "email" => "some@email.com",
-                "name" => "some name",
-                "username" => "@someusername",
-              } = json_response(conn, 200)["data"]
+    test "renders sign in page when writers uses their email", %{
+      conn: conn,
+      writers: %Writer{id: id} = writers
+    } do
+      conn =
+        post(conn, Routes.writers_path(conn, :login),
+          identifier: writers.email,
+          password: writers.password
+        )
 
+      assert %{
+               "id" => ^id,
+               "email" => "some@email.com",
+               "name" => "some name",
+               "username" => "@someusername"
+             } = json_response(conn, 200)["data"]
     end
   end
-
-
 
   describe "update writers" do
     setup [:create_writers]

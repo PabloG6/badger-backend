@@ -4,7 +4,5 @@ defmodule BadgerApi.Repo.Migrations.CreateWritesAboutTopics do
   def change do
     rename table(:writers_topics), to: table(:writes_about_topics)
     rename table(:topics_interests), to: table(:interested_in_topics)
-
-
   end
 end

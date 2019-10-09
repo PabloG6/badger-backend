@@ -24,7 +24,6 @@ defmodule BadgerApi.Accounts do
     Repo.all(Writer) |> Repo.preload(:writes_about_topics)
   end
 
-
   @doc """
   Gets a single writer.
 
@@ -51,7 +50,6 @@ defmodule BadgerApi.Accounts do
   """
   def get_writer_profile!(id), do: Repo.get(Writer, id) |> Repo.preload(:writes_about_topics)
   def get_writer_profile(id), do: Repo.get(Writer, id) |> Repo.preload(:writes_about_topics)
-
 
   @doc """
   Creates a writer.
@@ -105,20 +103,16 @@ defmodule BadgerApi.Accounts do
     Repo.delete(writer)
   end
 
-
   def authenticate_writer(%{identifier: identifier, password: password}) do
-   if Regex.match?(@username_verification, identifier) do
-    find_by_username(identifier, password)
-   else if Regex.match?(@email_verification, identifier) do
-    find_by_email(identifier, password)
-   else
-    {:error, "Email or username not present in database"}
-
-   end
-  end
-
-
-
+    if Regex.match?(@username_verification, identifier) do
+      find_by_username(identifier, password)
+    else
+      if Regex.match?(@email_verification, identifier) do
+        find_by_email(identifier, password)
+      else
+        {:error, "Email or username not present in database"}
+      end
+    end
   end
 
   defp find_by_username(username, password) do
@@ -127,7 +121,9 @@ defmodule BadgerApi.Accounts do
   end
 
   defp find_by_email(email, password) do
-    from(writer in Writer, where: writer.email == ^email) |> Repo.one |> verify_password(password)
+    from(writer in Writer, where: writer.email == ^email)
+    |> Repo.one()
+    |> verify_password(password)
   end
 
   defp verify_password(nil, _) do
@@ -140,10 +136,8 @@ defmodule BadgerApi.Accounts do
       {:ok, writer}
     else
       {:error, "Wrong username, email or password"}
-
     end
   end
-
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking writer changes.
@@ -175,14 +169,10 @@ defmodule BadgerApi.Accounts do
   end
 
   def following(id) do
-
     user = Repo.get(Writer, id) |> Repo.preload(:following)
 
     user.following
-
   end
-
-
 
   @doc """
   Follow a user.
@@ -197,20 +187,16 @@ defmodule BadgerApi.Accounts do
 
   """
   def follow(current_writer_id, other_writer_id) do
-
     %Relationships{}
     |> Relationships.changeset(%{follower_id: current_writer_id, following_id: other_writer_id})
     |> Repo.insert()
   end
 
   def follow!(current_writer_id, other_writer_id) do
-
-  %Relationships{}
-  |> Relationships.changeset(%{follower_id: current_writer_id, following_id: other_writer_id})
-  |> Repo.insert!()
+    %Relationships{}
+    |> Relationships.changeset(%{follower_id: current_writer_id, following_id: other_writer_id})
+    |> Repo.insert!()
   end
-
-
 
   @doc """
   Deletes a Relationships.
@@ -225,22 +211,22 @@ defmodule BadgerApi.Accounts do
 
   """
   def unfollow!(current_writer_id, other_writer_id) do
-    relationship = Repo.get_by!(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+    relationship =
+      Repo.get_by!(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+
     Repo.delete!(relationship)
   end
 
   def unfollow(current_writer_id, other_writer_id) do
-    relationship = Repo.get_by(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+    relationship =
+      Repo.get_by(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
+
     Repo.delete(relationship)
   end
-
 
   def is_following?(current_writer_id, other_writer_id) do
     Repo.get_by(Relationships, follower_id: current_writer_id, following_id: other_writer_id)
   end
-
-
-
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking relationships changes.

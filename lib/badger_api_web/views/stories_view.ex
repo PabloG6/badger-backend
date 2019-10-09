@@ -11,9 +11,11 @@ defmodule BadgerApiWeb.ArticlesView do
   end
 
   def render("articles.json", %{articles: articles}) do
-    %{id: articles.id,
+    %{
+      id: articles.id,
       title: articles.title,
       content: articles.content,
-      description: articles.description}
+      description: articles.description
+    }
   end
 end

@@ -9,9 +9,7 @@ defmodule BadgerApi.Repo.Migrations.CreateArticles do
       add :description, :string
       add :writer_id, references(:writers, type: :binary_id)
 
-
       timestamps()
     end
-
   end
 end

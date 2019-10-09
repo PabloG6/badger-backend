@@ -3,11 +3,10 @@ defmodule BadgerApi.Context.CategoriesArticles do
   import Ecto.Changeset
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Publications.Articles
-  schema "categories_articles" do
-    belongs_to :categories, Topics
-    belongs_to :articles, Articles
 
-    timestamps()
+  schema "categories_articles" do
+    belongs_to :categories, Topics, type: :binary_id
+    belongs_to :articles, Articles, type: :binary_id
   end
 
   @doc false

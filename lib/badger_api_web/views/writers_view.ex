@@ -11,25 +11,18 @@ defmodule BadgerApiWeb.WritersView do
   end
 
   def render("writers.json", %{writers: writer}) do
-      %{id: writer.id,
-      username: writer.username,
-      name: writer.name,
-      email: writer.email,
-
-      }
+    %{id: writer.id, username: writer.username, name: writer.name, email: writer.email}
   end
 
   def render("login.json", %{writers: writer, token: token}) do
-
-    %{data: %{
-      id: writer.id,
-      username: writer.username,
-      name: writer.name,
-      email: writer.email,
-      token: token,
-
-    }}
+    %{
+      data: %{
+        id: writer.id,
+        username: writer.username,
+        name: writer.name,
+        email: writer.email,
+        token: token
+      }
+    }
   end
-
-
 end

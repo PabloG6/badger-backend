@@ -10,6 +10,5 @@ defmodule BadgerApi.Repo.Migrations.CreateCategoriesArticles do
     end
 
     create unique_index(:categories_articles, [:categories_id, :articles_id])
-
   end
 end

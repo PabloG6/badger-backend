@@ -7,6 +7,8 @@ defmodule BadgerApi.Publications do
   alias BadgerApi.Repo
   alias BadgerApi.Publications.Articles
   alias BadgerApi.Accounts.Relationships
+  alias BadgerApi.Context.InterestedinTopics
+  alias BadgerApi.Context.CategoriesArticles
 
   @doc """
   Returns the list of articles.
@@ -50,15 +52,11 @@ defmodule BadgerApi.Publications do
 
   """
 
-
   def create_articles(attrs \\ %{}) do
     %Articles{}
     |> Articles.changeset(attrs)
-    |> Repo.insert
-
-
+    |> Repo.insert()
   end
-
 
   @doc """
   Updates a articles.
@@ -73,7 +71,6 @@ defmodule BadgerApi.Publications do
 
   """
   def update_articles(%Articles{} = articles, attrs) do
-
     articles
     |> Articles.changeset(attrs)
     |> Repo.update()
@@ -108,18 +105,36 @@ defmodule BadgerApi.Publications do
     Articles.changeset(articles, %{})
   end
 
-  #  @doc """
-  # Returns an `%Articles{}` for seeing list of articles.
-  # iex> get_feed()
-  # %Articles{}
-  # """
-  # def get_feed(writer_id) do
-  #   query = from articles in Articles,
-  #           join: r in Relationships, on: r.follower_id == ^writer_id,
-  #           join: t in topics
+  @doc """
+  Returns an `%Articles{}` for seeing list of articles.
+  iex> list_feed_articles(writer_id)
+  [%Articles{}...]
+  """
+  def list_feed_articles(writer_id) do
+    following_query =
+      from relationship in Relationships,
+        where: relationship.follower_id == ^writer_id
 
+    subscribed_topics_query =
+      from interested_in_topics in InterestedinTopics,
+        where: interested_in_topics.writer_id == ^writer_id
 
+    articles_topics_query =
+      from article_topics in CategoriesArticles,
+        join: sub_topics_query in subquery(subscribed_topics_query),
+        where: sub_topics_query.topics_id == article_topics.categories_id
 
-  # end
+    query =
+      from articles in Articles,
+        preload: [:categories, :writer],
+        join: following in subquery(following_query),
+        join: a in subquery(articles_topics_query),
+        on:
+          a.articles_id == articles.id or following.following_id == articles.writer_id or
+            articles.writer_id == ^writer_id,
+        order_by: [asc: articles.inserted_at],
+        distinct: [articles.id]
 
+    Repo.all(query)
+  end
 end

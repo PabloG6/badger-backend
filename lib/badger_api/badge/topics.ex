@@ -8,7 +8,6 @@ defmodule BadgerApi.Badge.Topics do
 
   @derive {Phoenix.Param, key: :slug}
 
-
   schema "topics" do
     field :description, :string
     field :title, :string
@@ -24,18 +23,7 @@ defmodule BadgerApi.Badge.Topics do
     |> cast(attrs, [:title, :description])
     |> validate_required([:title])
     |> unique_constraint(:title)
-    |> TopicsSlug.maybe_generate_slug
-    |> TopicsSlug.unique_constraint
-
+    |> TopicsSlug.maybe_generate_slug()
+    |> TopicsSlug.unique_constraint()
   end
-
-
-
-
-
-
-
-
-
-
 end
