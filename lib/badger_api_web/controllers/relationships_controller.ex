@@ -6,19 +6,34 @@ defmodule BadgerApiWeb.RelationshipsController do
 
   action_fallback BadgerApiWeb.FallbackController
 
-  def followers(conn, _params) do
+  def followers(conn, params \\ %{}) do
     writer = Guardian.Plug.current_resource(conn)
-    followers = Accounts.followers(writer.id)
-    render(conn, "followers.json", followers: followers)
+    page = Accounts.followers(writer.id, params)
+
+    render(
+      conn,
+      :followers,
+      followers: page.entries,
+      total_pages: page.total_pages,
+      total_entries: page.total_entries,
+      page_number: page.page_number,
+      page_size: page.page_size
+    )
   end
 
-  def following(conn, _params) do
+  def following(conn, params \\ %{}) do
     writer = Guardian.Plug.current_resource(conn)
-    following = Accounts.following(writer.id)
+    page = Accounts.following(writer.id, params)
 
     conn
     |> put_status(:created)
-    |> render("subjects.json", subjects: following)
+    |> render(:following,
+      subjects: page.entries,
+      total_pages: page.total_pages,
+      total_entries: page.total_entries,
+      page_size: page.page_size,
+      page_number: page.page_number
+    )
   end
 
   def create(conn, %{"subject_id" => subject_id}) do

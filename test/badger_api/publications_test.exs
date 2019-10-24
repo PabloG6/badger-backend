@@ -84,7 +84,8 @@ defmodule BadgerApi.PublicationsTest do
 
     test "list_articles/0 returns all articles" do
       {:ok, _writer, articles} = articles_fixture()
-      assert Publications.list_articles() == [articles |> Repo.preload(:writer)]
+      page = Publications.list_articles()
+      assert page.entries == [articles |> Repo.preload(:writer)]
     end
 
     test "get_articles!/1 returns the articles with given id" do

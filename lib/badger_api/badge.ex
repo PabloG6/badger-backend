@@ -17,8 +17,8 @@ defmodule BadgerApi.Badge do
       [%Topics{}, ...]
 
   """
-  def list_topics do
-    Repo.all(Topics)
+  def list_topics(params \\ %{}) do
+    from(t in Topics) |> Repo.paginate(params)
   end
 
   @doc """
@@ -40,14 +40,14 @@ defmodule BadgerApi.Badge do
   def get_topics_by_slug!(slug), do: Repo.get_by!(Topics, slug: slug)
   def get_topics_by_slug(slug), do: Repo.get_by(Topics, slug: slug)
 
-  def filter_articles!(slug) do
+  def filter_articles!(slug, params \\ %{}) do
     query =
       from articles in Articles,
         left_join: category in assoc(articles, :categories),
         where: category.slug == ^slug,
         preload: [:categories, :writer]
 
-    Repo.all(query)
+    Repo.paginate(query, params)
   end
 
   @doc """

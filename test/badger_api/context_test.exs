@@ -30,11 +30,16 @@ defmodule BadgerApi.ContextTest do
       {:ok, writer, topics, topics_interest}
     end
 
+    @tag :list_topics_interest
     test "list_topics_interest/1 returns all topics_interest" do
       {:ok, writer, topics, _topics_interest} = topics_interest_fixture()
+      page = Context.list_topics_interest(writer.id)
 
-      assert Context.list_topics_interest(writer.id) == [
-               %{topics | description: "No description."}
+      listed_topics = page.entries
+      IO.inspect(listed_topics)
+
+      assert listed_topics == [
+               %{topics | description: "No description"}
              ]
     end
 

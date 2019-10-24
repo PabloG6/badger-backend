@@ -20,8 +20,9 @@ defmodule BadgerApi.Accounts do
 
   @username_verification ~r/(?<=^|(?<=[^a-zA-Z0-9-_.]))@([A-Za-z]+[A-Za-z0-9-_]+)/
   @email_verification ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
-  def list_writers do
-    Repo.all(Writer) |> Repo.preload(:writes_about_topics)
+  def list_writers(params \\ %{}) do
+    from(w in Writer, preload: [:writes_about_topics])
+    |> Repo.paginate(params)
   end
 
   @doc """
@@ -163,15 +164,34 @@ defmodule BadgerApi.Accounts do
       [%Relationships{}, ...]
 
   """
-  def followers(id) do
-    user = Repo.get(Writer, id) |> Repo.preload(:followers)
-    user.followers
+  def followers(id, params \\ %{}) do
+    query =
+      from w in Writer,
+        join: f in Relationships,
+        on: [following_id: ^id],
+        where: w.id == f.follower_id
+
+    Repo.paginate(query, params)
   end
 
-  def following(id) do
-    user = Repo.get(Writer, id) |> Repo.preload(:following)
+  def following(id, params \\ %{}) do
+    query =
+      from w in Writer,
+        join: f in Relationships,
+        on: [follower_id: ^id],
+        where: w.id == f.following_id
 
-    user.following
+    Repo.paginate(query, params)
+  end
+
+  def list_writers_by_interest(interests, params \\ %{}) do
+    query = from w in Writer,
+            join: writes_about_topics in assoc(w, :writes_about_topics),
+            where: writes_about_topics.title in ^interests or writes_about_topics.slug in ^interests
+
+
+    Repo.paginate(query, params)
+
   end
 
   @doc """

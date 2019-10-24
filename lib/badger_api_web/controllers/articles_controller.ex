@@ -3,12 +3,18 @@ defmodule BadgerApiWeb.ArticlesController do
 
   alias BadgerApi.Publications
   alias BadgerApi.Publications.Articles
-
   action_fallback BadgerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    articles = Publications.list_articles()
-    render(conn, "index.json", articles: articles)
+  def index(conn, params) do
+    page = Publications.list_articles(params)
+
+    render(conn, :index,
+      articles: page.entries,
+      total_entries: page.total_entries,
+      page_number: page.page_number,
+      page_size: page.page_size,
+      total_pages: page.total_pages
+    )
   end
 
   defp build_association(writer, attrs) do
@@ -67,12 +73,17 @@ defmodule BadgerApiWeb.ArticlesController do
     end
   end
 
-  def list_feed_articles(conn, _params) do
+  def list_feed_articles(conn, params) do
     writer = Guardian.Plug.current_resource(conn)
-    articles = Publications.list_feed_articles(writer.id)
+    page = Publications.list_feed_articles(writer.id, params)
 
     conn
     |> put_status(:ok)
-    |> render(:index, articles: articles)
+    |> render(:index,
+      articles: page.entries,
+      total_entries: page.total_entries,
+      page_size: page.page_size,
+      total_pages: page.total_pages
+    )
   end
 end

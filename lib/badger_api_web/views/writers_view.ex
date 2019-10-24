@@ -6,6 +6,22 @@ defmodule BadgerApiWeb.WritersView do
     %{data: render_many(writers, WritersView, "writers.json")}
   end
 
+  def render("index.json", %{
+        writer: writers,
+        page_size: page_size,
+        page_number: page_number,
+        total_pages: total_pages,
+        total_entries: total_entries
+      }) do
+    %{
+      data: render_many(writers, WritersView, "writers.json"),
+      page_size: page_size,
+      page_number: page_number,
+      total_pages: total_pages,
+      total_entrie: total_entries
+    }
+  end
+
   def render("show.json", %{writer: writers}) do
     %{data: render_one(writers, WritersView, "writers.json")}
   end

@@ -7,9 +7,16 @@ defmodule BadgerApiWeb.TopicsController do
   alias BadgerApi.Context
   action_fallback BadgerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    topics = Badge.list_topics()
-    render(conn, "index.json", topics: topics)
+  def index(conn, params) do
+    page = Badge.list_topics(params)
+
+    render(conn, "index.json",
+      topics: page.entries,
+      total_pages: page.total_pages,
+      page_size: page.page_size,
+      page_number: page.page_number,
+      total_entries: page.total_entries
+    )
   end
 
   def create(conn, %{"topics" => topics_params}) do
@@ -22,8 +29,15 @@ defmodule BadgerApiWeb.TopicsController do
   end
 
   def filter_articles(conn, %{"slug" => slug}) do
-    articles = Badge.filter_articles!(slug)
-    render(conn, "show_articles.json", articles: articles)
+    page = Badge.filter_articles!(slug)
+
+    render(conn, "show_articles.json",
+      articles: page.entries,
+      total_pages: page.total_pages,
+      total_entries: page.total_entries,
+      page_number: page.page_number,
+      page_size: page.page_size
+    )
   end
 
   def follow_topics(conn, %{"slug" => slug}) do
@@ -46,9 +60,9 @@ defmodule BadgerApiWeb.TopicsController do
     end
   end
 
-  def following(conn, _params) do
+  def following(conn, params) do
     writer = Guardian.Plug.current_resource(conn)
-    topics = Context.list_topics_interest(writer.id)
+    topics = Context.list_topics_interest(writer.id, params)
     render(conn, :index, topics: topics)
   end
 

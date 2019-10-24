@@ -2,16 +2,46 @@ defmodule BadgerApiWeb.TopicsView do
   use BadgerApiWeb, :view
   alias BadgerApiWeb.TopicsView
 
+  def render("index.json", %{
+        topics: topics,
+        page_number: page_number,
+        page_size: page_size,
+        total_entries: total_entries,
+        total_pages: total_pages
+      }) do
+    %{
+      data: render_many(topics, TopicsView, "topics.json"),
+      page_number: page_number,
+      page_size: page_size,
+      total_entries: total_entries,
+      total_pages: total_pages
+    }
+  end
+
   def render("index.json", %{topics: topics}) do
-    %{data: render_many(topics, TopicsView, "topics.json")}
+    %{
+      data: render_many(topics, TopicsView, "topics.json")
+    }
   end
 
   def render("show.json", %{topics: topics}) do
     %{data: render_one(topics, TopicsView, "topics.json")}
   end
 
-  def render("show_articles.json", %{articles: articles}) do
-    %{data: render_many(articles, TopicsView, "articles.json", as: :articles)}
+  def render("show_articles.json", %{
+        articles: articles,
+        page_number: page_number,
+        page_size: page_size,
+        total_entries: total_entries,
+        total_pages: total_pages
+      }) do
+    %{
+      data: render_many(articles, TopicsView, "articles.json", as: :articles),
+      page_number: page_number,
+      page_size: page_size,
+      total_entries: total_entries,
+      total_pages: total_pages
+    }
   end
 
   def render("articles.json", %{articles: articles}) do

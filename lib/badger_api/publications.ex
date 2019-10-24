@@ -19,8 +19,9 @@ defmodule BadgerApi.Publications do
       [%Articles{}, ...]
 
   """
-  def list_articles do
-    Repo.all(Articles) |> Repo.preload([:categories, :writer])
+  def list_articles(params \\ %{}) do
+    from(p in Articles, preload: [:categories, :writer])
+    |> Repo.paginate(params)
   end
 
   @doc """
@@ -110,7 +111,7 @@ defmodule BadgerApi.Publications do
   iex> list_feed_articles(writer_id)
   [%Articles{}...]
   """
-  def list_feed_articles(writer_id) do
+  def list_feed_articles(writer_id, params \\ %{}) do
     following_query =
       from relationship in Relationships,
         where: relationship.follower_id == ^writer_id
@@ -135,6 +136,6 @@ defmodule BadgerApi.Publications do
         order_by: [asc: articles.inserted_at],
         distinct: [articles.id]
 
-    Repo.all(query)
+    Repo.paginate(query, params)
   end
 end

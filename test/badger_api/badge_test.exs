@@ -63,7 +63,8 @@ defmodule BadgerApi.BadgeTest do
 
     test "list_topics/0 returns all topics" do
       topics = topics_fixture()
-      assert Badge.list_topics() == [topics]
+      page = Badge.list_topics()
+      assert page.entries == [topics]
     end
 
     test "get_topics!/1 returns the topics with given id" do

@@ -109,6 +109,13 @@ defmodule BadgerApiWeb.WritersControllerTest do
     end
   end
 
+  describe "interested writers" do
+    test "returns a list of writers based on your interest in paginated form", %{conn: conn, writers: %Writer{id: id} = writers} do
+      {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writers)
+      conn = put_req_header(conn, "authorization", "bearer: "<> token)
+      conn = get(conn, Routes.writers_path(conn, :list_writers_by_interest))
+    end
+  end
   describe "update writers" do
     setup [:create_writers]
 

@@ -6,9 +6,28 @@ defmodule BadgerApiWeb.WritersController do
   alias BadgerApi.Accounts
   action_fallback BadgerApiWeb.FallbackController
 
-  def index(conn, _params) do
-    writer = Accounts.list_writers()
-    render(conn, "index.json", writer: writer)
+  def index(conn, params) do
+    page = Accounts.list_writers(params)
+
+    render(conn, :index,
+      writer: page.entries,
+      page_size: page.page_size,
+      total_entries: page.total_entries,
+      total_pages: page.total_pages,
+      page_number: page.page_number
+    )
+  end
+
+  def list_writers_by_interest(conn, %{"interests" => interests} = params) do
+    page = Accounts.filter_writer_by_interests(interests)
+
+    render(conn, :index,
+      writer: page.entries,
+      page_size: page.page_size,
+      total_entries: page.total_entries,
+      total_pages: page.total_pages,
+      page_number: page.page_number
+    )
   end
 
   def create(conn, %{"writers" => writer_params}) do

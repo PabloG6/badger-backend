@@ -6,12 +6,36 @@ defmodule BadgerApiWeb.RelationshipsView do
     %{data: render_many(relationships, RelationshipsView, "relationships.json")}
   end
 
-  def render("followers.json", %{followers: followers}) do
-    %{data: render_many(followers, RelationshipsView, "follower.json", as: :writers)}
+  def render("followers.json", %{
+        followers: followers,
+        total_pages: total_pages,
+        total_entries: total_entries,
+        page_size: page_size,
+        page_number: page_number
+      }) do
+    %{
+      data: render_many(followers, RelationshipsView, "follower.json", as: :writers),
+      total_pages: total_pages,
+      total_entries: total_entries,
+      page_size: page_size,
+      page_number: page_number
+    }
   end
 
-  def render("subjects.json", %{subjects: subjects}) do
-    %{data: render_many(subjects, RelationshipsView, "subject.json", as: :writer)}
+  def render("following.json", %{
+        subjects: subjects,
+        total_pages: total_pages,
+        total_entries: total_entries,
+        page_size: page_size,
+        page_number: page_number
+      }) do
+    %{
+      data: render_many(subjects, RelationshipsView, "subject.json", as: :writer),
+      total_entries: total_entries,
+      total_pages: total_pages,
+      page_size: page_size,
+      page_number: page_number
+    }
   end
 
   def render("follower.json", %{writers: writer}) do

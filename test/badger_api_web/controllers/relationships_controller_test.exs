@@ -38,7 +38,7 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
 
   describe "index" do
     setup [:create_follower]
-
+    @tag :followers
     test "lists all followers", %{conn: conn, subject: subject} do
       conn = get(conn, Routes.relationships_path(conn, :followers))
 
@@ -54,7 +54,7 @@ defmodule BadgerApiWeb.RelationshipsControllerTest do
 
   describe "following" do
     setup [:create_following]
-
+    @tag :following
     test "list all following", %{conn: conn, subject: subject} do
       conn = get(conn, Routes.relationships_path(conn, :following))
 

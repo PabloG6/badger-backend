@@ -51,8 +51,8 @@ defmodule BadgerApi.AccountsTest do
 
     test "list_writers/0 returns all writers" do
       writer = writer_fixture()
-
-      assert Accounts.list_writers() == [%{writer | password: nil}]
+      page = Accounts.list_writers()
+      assert page.entries == [%{writer | password: nil}]
     end
 
     test "get_writer!/1 returns the writer with given id" do
@@ -149,13 +149,17 @@ defmodule BadgerApi.AccountsTest do
       {writer, other_writer}
     end
 
+    @tag :followers
     test "followers/1 returns all followers for specific user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
+      page = Accounts.following(second_writer.id)
+      IO.inspect(page)
 
-      assert Enum.map(Accounts.following(first_writer.id), &%Writer{&1 | writes_about_topics: []}) ==
-               [%Writer{second_writer | password: nil}]
+      assert Enum.map(page.entries, &%Writer{&1 | writes_about_topics: []}) ==
+               [%Writer{first_writer | password: nil}]
     end
 
+    @tag :following
     test "following/1 returns all users following this user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
 

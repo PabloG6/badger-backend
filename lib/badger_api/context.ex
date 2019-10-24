@@ -5,8 +5,9 @@ defmodule BadgerApi.Context do
 
   import Ecto.Query, warn: false
   alias BadgerApi.Repo
-  alias BadgerApi.Accounts.Writer
+
   alias BadgerApi.Context.InterestedinTopics
+  alias BadgerApi.Badge.Topics
 
   @doc """
   Returns the list of topics_interest.
@@ -17,9 +18,14 @@ defmodule BadgerApi.Context do
       [%InterestedinTopics{}, ...]
 
   """
-  def list_topics_interest(id) do
-    writer = Repo.get(Writer, id) |> Repo.preload(:interested_in_topics)
-    writer.interested_in_topics
+
+  def list_topics_interest(id, params \\ %{}) do
+    query =
+      from t in Topics,
+        join: i in InterestedinTopics,
+        on: [topics_id: t.id, writer_id: ^id]
+
+    Repo.paginate(query, params)
   end
 
   @doc """
@@ -30,10 +36,6 @@ defmodule BadgerApi.Context do
 
   def is_following?(writer_id, topics_id) do
     Repo.exists?(from InterestedinTopics, where: [writer_id: ^writer_id, topics_id: ^topics_id])
-  end
-
-  def get_topics_interest(id) do
-    Repo.get(InterestedinTopics, id)
   end
 
   def get_specific_topics_interest!(writer_id, topics_id),

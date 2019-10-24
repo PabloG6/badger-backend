@@ -19,6 +19,7 @@ defmodule BadgerApi.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
+      applications: [:exsolr],
       mod: {BadgerApi.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
@@ -50,7 +51,12 @@ defmodule BadgerApi.MixProject do
       {:uuid, "~> 1.1"},
       {:arc_ecto, "~> 0.11.1"},
       {:goth, "~> 1.1.0"},
-      {:arc, "~> 0.11.0"}
+      {:arc, "~> 0.11.0"},
+      {:scrivener_ecto, "~> 2.2.0"},
+
+
+
+
     ]
   end
 
