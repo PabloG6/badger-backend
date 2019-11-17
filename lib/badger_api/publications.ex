@@ -9,6 +9,7 @@ defmodule BadgerApi.Publications do
   alias BadgerApi.Accounts.Relationships
   alias BadgerApi.Context.InterestedinTopics
   alias BadgerApi.Context.CategoriesArticles
+  alias Exsolr
 
   @doc """
   Returns the list of articles.
@@ -54,9 +55,38 @@ defmodule BadgerApi.Publications do
   """
 
   def create_articles(attrs \\ %{}) do
+    # writer = &%{name: &1.name, username: &1.username, email: &1.email, avatar: &1.avatar}
+
+    # categories = fn categories ->
+    #   Enum.map(categories, &%{title: &1.title, description: &1.description, slug: &1.slug})
+    # end
+
+    # case %Articles{}
+    #      |> Articles.changeset(attrs)
+    #      |> Repo.insert() do
+    #   {:ok, articles} = response ->
+    #     articles = articles |> Repo.preload([:writer, :categories])
+    #   article = %{
+    #       id: articles.id,
+    #       title: articles.title,
+    #       content: articles.content,
+    #       description: articles.description,
+    #       _childDocuments_: [
+    #          writer.(articles.writer),
+    #         categories.(articles.categories)
+    #       ]
+    #     }
+
+    #     article |> Exsolr.add
+    #     response
+
+    #   error ->
+    #     error
+    # end
+
     %Articles{}
-    |> Articles.changeset(attrs)
-    |> Repo.insert()
+         |> Articles.changeset(attrs)
+         |> Repo.insert()
   end
 
   @doc """
@@ -123,16 +153,16 @@ defmodule BadgerApi.Publications do
     articles_topics_query =
       from article_topics in CategoriesArticles,
         join: sub_topics_query in subquery(subscribed_topics_query),
-        where: sub_topics_query.topics_id == article_topics.categories_id
+        on: sub_topics_query.topics_id == article_topics.categories_id
+
 
     query =
       from articles in Articles,
         preload: [:categories, :writer],
-        join: following in subquery(following_query),
-        join: a in subquery(articles_topics_query),
-        on:
-          a.articles_id == articles.id or following.following_id == articles.writer_id or
-            articles.writer_id == ^writer_id,
+        left_join: a in subquery(articles_topics_query),
+        left_join: following in subquery(following_query),
+        where: articles.writer_id == following.following_id
+        or articles.writer_id == ^writer_id or a.articles_id == articles.id,
         order_by: [asc: articles.inserted_at],
         distinct: [articles.id]
 

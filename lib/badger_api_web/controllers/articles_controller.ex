@@ -21,12 +21,12 @@ defmodule BadgerApiWeb.ArticlesController do
     Map.put(attrs, "writer_id", writer.id)
   end
 
-  def create(conn, %{"articles" => articles_params}) do
-    article =
+  def create(conn, %{"articles" => params}) do
+    article_assoc =
       Guardian.Plug.current_resource(conn)
-      |> build_association(articles_params)
+      |> build_association(params)
 
-    with {:ok, %Articles{} = articles} <- Publications.create_articles(article) do
+    with {:ok, %Articles{} = articles} <- Publications.create_articles(article_assoc) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.articles_path(conn, :show, articles))
@@ -65,6 +65,7 @@ defmodule BadgerApiWeb.ArticlesController do
 
     with true <- writer.id == articles.writer_id,
          {:ok, %Articles{}} <- Publications.delete_articles(articles) do
+      # Exsolr.delete_by_id(articles.id)
       send_resp(conn, :no_content, "")
     else
       false -> {:error, :unauthorized_delete_story}

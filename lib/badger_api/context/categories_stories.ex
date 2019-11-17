@@ -14,5 +14,6 @@ defmodule BadgerApi.Context.CategoriesArticles do
     categories_articles
     |> cast(attrs, [:categories_id, :articles_id])
     |> validate_required([:categories_id, :articles_id])
+    |> unique_constraint([:categories_id, :articles_id])
   end
 end

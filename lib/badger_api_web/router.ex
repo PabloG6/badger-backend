@@ -2,6 +2,10 @@ defmodule BadgerApiWeb.Router do
   use BadgerApiWeb, :router
 
   pipeline :api do
+    plug Corsica,
+      origins: "*",
+      allow_headers: :all,
+      allow_credentials: true
     plug :accepts, ["json"]
     plug :fetch_session
   end
@@ -17,7 +21,7 @@ defmodule BadgerApiWeb.Router do
     resources "/writers", WritersController, except: [:new, :edit, :show, :index, :create]
     resources "/articles", ArticlesController, except: [:new, :edit]
     post "/follow", RelationshipsController, :create
-    delete "/unfollow/:id", RelationshipsController, :delete
+    delete "/unfollow/:subject_id", RelationshipsController, :delete
     get "/followers", RelationshipsController, :followers
     get "/following", RelationshipsController, :following
     get "/following/show/:id", RelationshipsController, :show
@@ -28,9 +32,19 @@ defmodule BadgerApiWeb.Router do
     pipe_through [:api, :auth]
     get "/topics/:slug/articles", TopicsController, :filter_articles
     post "/topics/:slug/follow", TopicsController, :follow_topics
-    delete "/topics/:slug/unfollow", TopicsController, :unfollow_topics
+
+    delete "/topics/:slug/follow", TopicsController, :unfollow_topics
     get "/topics/subscriptions/following", TopicsController, :following
     get "/topics/is-following/:slug", TopicsController, :is_following?
+  end
+
+  scope "/api", BadgerApiWeb do
+    resources "/query", SearchController, except: [:new, :edit]
+  end
+
+  scope "/api", BadgerApiWeb do
+    pipe_through [:api]
+    get "/writers/interests", WritersController, :list_writers_by_interest
   end
 
   scope "/api", BadgerApiWeb do

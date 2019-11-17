@@ -7,7 +7,7 @@ defmodule BadgerApi.Accounts.Writer do
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts.Relationships
   alias BadgerApi.Repo
-
+  alias Exsolr
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "writers" do
@@ -78,17 +78,19 @@ defmodule BadgerApi.Accounts.Writer do
     Repo.all(from topic in Topics, where: topic.title in ^writes_about_topics)
   end
 
-  defp downcase_username(%Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset) do
+  defp downcase_email(%Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset) do
     change(changeset, %{email: String.downcase(email)})
   end
 
-  defp downcase_username(changeset), do: changeset
+  defp downcase_email(changeset), do: changeset
 
-  defp downcase_email(%Ecto.Changeset{valid?: true, changes: %{username: username}} = changeset) do
+  defp downcase_username(
+         %Ecto.Changeset{valid?: true, changes: %{username: username}} = changeset
+       ) do
     change(changeset, %{username: String.downcase(username)})
   end
 
-  defp downcase_email(changeset), do: changeset
+  defp downcase_username(changeset), do: changeset
 
   defp hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     change(changeset, %{password_hash: Bcrypt.hash_pwd_salt(password)})

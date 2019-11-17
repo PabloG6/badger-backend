@@ -1,6 +1,7 @@
 defmodule BadgerApiWeb.WritersView do
   use BadgerApiWeb, :view
   alias BadgerApiWeb.WritersView
+  alias BadgerApi.Repo
 
   def render("index.json", %{writer: writers}) do
     %{data: render_many(writers, WritersView, "writers.json")}
@@ -27,7 +28,21 @@ defmodule BadgerApiWeb.WritersView do
   end
 
   def render("writers.json", %{writers: writer}) do
-    %{id: writer.id, username: writer.username, name: writer.name, email: writer.email}
+    writer = writer |> Repo.preload(:writes_about_topics)
+
+    writes_about_topics =
+      Enum.map(
+        writer.writes_about_topics,
+        &%{title: &1.title, description: &1.description, slug: &1.slug}
+      )
+
+    %{
+      id: writer.id,
+      username: writer.username,
+      name: writer.name,
+      email: writer.email,
+      writes_about_topics: writes_about_topics
+    }
   end
 
   def render("login.json", %{writers: writer, token: token}) do

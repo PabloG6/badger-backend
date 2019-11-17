@@ -7,6 +7,7 @@ defmodule BadgerApi.Badge do
   alias BadgerApi.Repo
   alias BadgerApi.Publications.Articles
   alias BadgerApi.Badge.Topics
+  alias Exsolr
 
   @doc """
   Returns the list of topics.
@@ -62,8 +63,17 @@ defmodule BadgerApi.Badge do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_topics(topics \\ %{}) do
-    Topics.changeset(%Topics{}, topics) |> Repo.insert()
+  def create_topics(attrs \\ %{}) do
+    # case Topics.changeset(%Topics{}, attrs) |> Repo.insert() do
+    #   {:ok, topic} = response ->
+    #     Exsolr.add(%{title: topic.title, slug: topic.slug, description: topic.description})
+    #     response
+
+    #   {:error, _} = error ->
+    #     error
+    # end
+
+    Topics.changeset(%Topics{}, attrs) |> Repo.insert()
   end
 
   @doc """
@@ -97,7 +107,14 @@ defmodule BadgerApi.Badge do
 
   """
   def delete_topics(%Topics{} = topics) do
-    Repo.delete(topics)
+    case Repo.delete(topics) do
+      {:ok, topic} = response ->
+        # Exsolr.delete_by_id(topic.id)
+        response
+
+      error ->
+        error
+    end
   end
 
   @doc """

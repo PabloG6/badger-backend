@@ -3,6 +3,7 @@ defmodule BadgerApiWeb.WritersControllerTest do
 
   alias BadgerApi.Accounts
   alias BadgerApi.Accounts.Writer
+  # alias BadgerApi.Badge.Topics
 
   @create_attrs %{
     email: "some@email.com",
@@ -109,13 +110,34 @@ defmodule BadgerApiWeb.WritersControllerTest do
     end
   end
 
+  # TODO implement this for writers
   describe "interested writers" do
-    test "returns a list of writers based on your interest in paginated form", %{conn: conn, writers: %Writer{id: id} = writers} do
+    setup [:create_writers, :create_writers_with_interests]
+
+    test "returns a list of writers based on your interest in paginated form", %{
+      conn: conn,
+      writer_one: writer_one,
+      writer_two: writer_two,
+      writer_three: writer_three,
+      writers: %Writer{id: _id} = writers
+    } do
       {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writers)
-      conn = put_req_header(conn, "authorization", "bearer: "<> token)
-      conn = get(conn, Routes.writers_path(conn, :list_writers_by_interest))
+
+      conn = put_req_header(conn, "authorization", "bearer: " <> token)
+      writers = [writer_one, writer_two, writer_three]
+
+      conn =
+        get(
+          conn,
+          Routes.writers_path(conn, :list_writers_by_interest,
+            interests: ["south africa", "jamaica"]
+          )
+        )
+
+      assert json_response(conn, 200)["data"] == writers
     end
   end
+
   describe "update writers" do
     setup [:create_writers]
 
@@ -162,5 +184,37 @@ defmodule BadgerApiWeb.WritersControllerTest do
   defp create_writers(_) do
     writers = fixture(:writers)
     {:ok, writers: writers}
+  end
+
+  defp create_writers_with_interests(_) do
+    {:ok, nelson_mandella} =
+      Accounts.create_writer(%{
+        name: "Nelson Mandella",
+        username: "@nelsonmandella",
+        password: "password",
+        email: "nelsonmandella@gmail.com",
+        writes_about_topics: ["south africa"]
+      })
+
+    {:ok, marcus_garvey} =
+      Accounts.create_writer(%{
+        name: "Marcus Garvey",
+        username: "@marcusgarvey",
+        password: "password",
+        email: "marcusgarvey@gmail.com",
+        writes_about_topics: ["jamaica"]
+      })
+
+    {:ok, martin_luther_king} =
+      Accounts.create_writer(%{
+        name: "Martin Luther",
+        username: "@martinluther",
+        password: "password",
+        email: "martinluther@gmail.com",
+        writes_about_topics: ["united states of america"]
+      })
+
+    {:ok,
+     writer_one: nelson_mandella, writer_two: marcus_garvey, writer_three: martin_luther_king}
   end
 end

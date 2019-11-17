@@ -32,14 +32,13 @@ config :arc,
   config: :goth,
   json: {:system, "GOOGLE_APPLICATION_CREDENTIALS"}
 
-# Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
-
-# Configure search module for api
-config :search,
+config :exsolr,
   hostname: "localhost",
   port: 8983,
-  core: "badger_search"
+  core: "badger_test"
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

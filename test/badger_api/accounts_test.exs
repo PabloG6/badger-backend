@@ -152,11 +152,10 @@ defmodule BadgerApi.AccountsTest do
     @tag :followers
     test "followers/1 returns all followers for specific user" do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
-      page = Accounts.following(second_writer.id)
-      IO.inspect(page)
+      page = Accounts.followers(second_writer.id)
 
       assert Enum.map(page.entries, &%Writer{&1 | writes_about_topics: []}) ==
-               [%Writer{first_writer | password: nil}]
+               [%Writer{first_writer | password: nil, writes_about_topics: []}]
     end
 
     @tag :following
@@ -164,10 +163,10 @@ defmodule BadgerApi.AccountsTest do
       {first_writer, second_writer, _} = relationships_fixture(:relationships)
 
       assert Enum.map(
-               Accounts.followers(second_writer.id),
+               Accounts.following(first_writer.id),
                &%Writer{&1 | writes_about_topics: []}
              ) ==
-               [%Writer{first_writer | password: nil, writes_about_topics: []}]
+               [%Writer{second_writer | password: nil, writes_about_topics: []}]
     end
 
     test "follow/1 follows a specific user" do

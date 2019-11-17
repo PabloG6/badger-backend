@@ -7,6 +7,8 @@ defmodule BadgerApi.Accounts do
   alias BadgerApi.Repo
 
   alias BadgerApi.Accounts.Writer
+  alias BadgerApi.Context.WritesAboutTopics
+  alias BadgerApi.Badge.Topics
 
   @doc """
   Returns the list of writers.
@@ -65,9 +67,30 @@ defmodule BadgerApi.Accounts do
 
   """
   def create_writer(attrs \\ %{}) do
-    %Writer{}
-    |> Writer.changeset(attrs)
-    |> Repo.insert()
+    # case %Writer{}
+    #      |> Writer.changeset(attrs)
+    #      |> Repo.insert() do
+    #   {:ok, writer} = response ->
+    #     %{
+    #       name: writer.name,
+    #       username: writer.username,
+    #       id: writer.id,
+    #       email: writer.email,
+    #       _childDocuments_:
+    #         Enum.map(writer.writes_about_topics, &%{title: &1.title, slug: &1.slug})
+    #     }
+    #     |> Exsolr.add()
+
+    #     response
+
+    #   {:error, _} = error ->
+    #     error
+
+    #   error ->
+    #     error
+    # end
+
+    %Writer{} |> Writer.changeset(attrs) |> Repo.insert()
   end
 
   @doc """
@@ -185,13 +208,15 @@ defmodule BadgerApi.Accounts do
   end
 
   def list_writers_by_interest(interests, params \\ %{}) do
-    query = from w in Writer,
-            join: writes_about_topics in assoc(w, :writes_about_topics),
-            where: writes_about_topics.title in ^interests or writes_about_topics.slug in ^interests
-
+    query =
+      from w in Writer,
+        join: wt in WritesAboutTopics,
+        join: topics in Topics,
+        on: wt.writer_id == w.id,
+        on: topics.id == wt.topics_id,
+        where: topics.title in ^interests or topics.slug in ^interests
 
     Repo.paginate(query, params)
-
   end
 
   @doc """

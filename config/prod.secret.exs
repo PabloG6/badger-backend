@@ -4,20 +4,24 @@
 # remember to add this file to your .gitignore.
 use Mix.Config
 
-database_url =
-  System.get_env("DATABASE_URL") ||
-    raise """
-    environment variable DATABASE_URL is missing.
-    For example: ecto://USER:PASS@HOST/DATABASE
-    """
+# database_url =
+#   System.get_env("DATABASE_URL") ||
+#     raise """
+#     environment variable DATABASE_URL is missing.
+#     For example: ecto://USER:PASS@HOST/DATABASE
+#     """
 
 config :badger_api, BadgerApi.Repo,
   # ssl: true,
-  url: database_url,
+  socket_dir: "/cloudsql/badger-testing-254303:us-west2:badger-staging-2",
+  password: "Dragon18",
+  username: "postgres",
+  database: "badger_staging",
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
+    "H/LrNVVTVss3HFK3OvW/5oI05KpNQaAcY6VHNh8WFWLkZiQU/a05eXXvDJaPTTjP" ||
     raise """
     environment variable SECRET_KEY_BASE is missing.
     You can generate one by calling: mix phx.gen.secret

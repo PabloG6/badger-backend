@@ -94,6 +94,7 @@ defmodule BadgerApiWeb.TopicsController do
     topics = Badge.get_topics_by_slug!(slug)
 
     with {:ok, %Topics{}} <- Badge.delete_topics(topics) do
+    #  Exsolr.delete_by_id(topics.id)
       send_resp(conn, :no_content, "")
     end
   end

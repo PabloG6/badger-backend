@@ -4,6 +4,16 @@ defmodule BadgerApi.MixProject do
   def project do
     [
       app: :badger_api,
+      releases: [
+        badger_api: [
+          include_erts: true,
+          include_exectuables_for: [:unix],
+          applications: [
+            runtime_tools: :permanent
+          ],
+          version: "0.0.1"
+        ]
+      ],
       version: "0.1.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -19,7 +29,6 @@ defmodule BadgerApi.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      applications: [:exsolr],
       mod: {BadgerApi.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
@@ -49,14 +58,12 @@ defmodule BadgerApi.MixProject do
       {:arc_gcs, "~> 0.1.0"},
       {:slugify, "~> 1.2"},
       {:uuid, "~> 1.1"},
+      {:exsolr, git: "https://github.com/PabloG6/exsolr", override: true},
       {:arc_ecto, "~> 0.11.1"},
       {:goth, "~> 1.1.0"},
+      {:corsica, "~> 1.1.2"},
       {:arc, "~> 0.11.0"},
-      {:scrivener_ecto, "~> 2.2.0"},
-
-
-
-
+      {:scrivener_ecto, "~> 2.2.0"}
     ]
   end
 

@@ -36,7 +36,6 @@ defmodule BadgerApi.ContextTest do
       page = Context.list_topics_interest(writer.id)
 
       listed_topics = page.entries
-      IO.inspect(listed_topics)
 
       assert listed_topics == [
                %{topics | description: "No description"}

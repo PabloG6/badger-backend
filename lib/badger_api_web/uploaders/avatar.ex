@@ -60,4 +60,7 @@ defmodule BadgerApi.Avatar do
   # def s3_object_headers(version, {file, scope}) do
   #   [content_type: MIME.from_path(file.file_name)]
   # end
+
+  def embed_as(_, _), do: nil
+  def equal?(_, _), do: true
 end

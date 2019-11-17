@@ -4,9 +4,7 @@ defmodule BadgerApi.Discovery do
   """
 
   import Ecto.Query, warn: false
-  alias BadgerApi.Repo
-
-  alias BadgerApi.Discovery.Search
+  # alias BadgerApi.Repo
 
   @doc """
   Returns the list of search.
@@ -32,7 +30,7 @@ defmodule BadgerApi.Discovery do
       %Search{}
 
   """
-  def get_search!(id), do: raise "TODO"
+  def get_search!(_id), do: raise("TODO")
 
   @doc """
   Creates a search.
@@ -46,7 +44,7 @@ defmodule BadgerApi.Discovery do
       {:error, ...}
 
   """
-  def create_search(attrs \\ %{}) do
+  def create_search(_attrs \\ %{}) do
     raise "TODO"
   end
 
@@ -62,7 +60,7 @@ defmodule BadgerApi.Discovery do
       {:error, ...}
 
   """
-  def update_search(%Search{} = search, attrs) do
+  def update_search(_search, _attrs) do
     raise "TODO"
   end
 
@@ -78,7 +76,7 @@ defmodule BadgerApi.Discovery do
       {:error, ...}
 
   """
-  def delete_search(%Search{} = search) do
+  def delete_search(_search) do
     raise "TODO"
   end
 
@@ -91,7 +89,7 @@ defmodule BadgerApi.Discovery do
       %Todo{...}
 
   """
-  def change_search(%Search{} = search) do
+  def change_search(_search) do
     raise "TODO"
   end
 end

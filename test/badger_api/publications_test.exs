@@ -51,13 +51,15 @@ defmodule BadgerApi.PublicationsTest do
     @second_story_attrs %{
       content: "second story",
       title: "second title",
-      description: "second description"
+      description: "second description",
+      categories: ["Second Topic"]
     }
 
     @third_story_attrs %{
       title: "third story",
       description: "third description",
-      content: "third story"
+      content: "third story",
+      categories: ["Third Topic"]
     }
 
     @fourth_story_attrs %{

@@ -19,7 +19,7 @@ defmodule BadgerApiWeb.WritersController do
   end
 
   def list_writers_by_interest(conn, %{"interests" => interests} = params) do
-    page = Accounts.filter_writer_by_interests(interests)
+    page = Accounts.list_writers_by_interest(interests)
 
     render(conn, :index,
       writer: page.entries,
@@ -56,6 +56,7 @@ defmodule BadgerApiWeb.WritersController do
     writer = Accounts.get_writer!(id)
 
     with {:ok, %Writer{}} <- Accounts.delete_writer(writer) do
+      Exsolr.delete_by_id(writer.id)
       send_resp(conn, :no_content, "")
     end
   end

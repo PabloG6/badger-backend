@@ -1,0 +1,10 @@
+env: flex
+runtime: gs://elixir-runtime/elixir.yaml
+runtime_config: 
+    release_app: badger_api
+beta_settings:
+    cloud_sql_instances: badger-testing-254303:us-west2:badger-staging-2
+vpc_access_connector:
+  name: "projects/badger-testing-254303/locations/us-west2/connectors/badger-staging"
+
+    
