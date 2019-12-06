@@ -36,6 +36,7 @@ defmodule BadgerApiWeb.WritersView do
         &%{title: &1.title, description: &1.description, slug: &1.slug}
       )
 
+
     %{
       id: writer.id,
       username: writer.username,
@@ -46,13 +47,24 @@ defmodule BadgerApiWeb.WritersView do
   end
 
   def render("login.json", %{writers: writer, token: token}) do
+    writer = writer |> Repo.preload(:writes_about_topics)
+
+    writes_about_topics =
+      Enum.map(
+        writer.writes_about_topics,
+        &%{title: &1.title, description: &1.description, slug: &1.slug}
+      )
+
+
+
     %{
       data: %{
         id: writer.id,
         username: writer.username,
         name: writer.name,
         email: writer.email,
-        token: token
+        token: token,
+        writes_about_topics: writes_about_topics
       }
     }
   end

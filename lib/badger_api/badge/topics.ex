@@ -23,7 +23,14 @@ defmodule BadgerApi.Badge.Topics do
     |> cast(attrs, [:title, :description])
     |> validate_required([:title])
     |> unique_constraint(:title)
+    |> uppercase_title
     |> TopicsSlug.maybe_generate_slug()
     |> TopicsSlug.unique_constraint()
   end
+
+  defp uppercase_title(%Ecto.Changeset{valid?: true, changes: %{title: title}} = changeset) do
+    change(changeset, %{title: Recase.to_title(title)})
+  end
+
+  defp uppercase_title(changeset), do: changeset
 end

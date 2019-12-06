@@ -4,8 +4,11 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   alias BadgerApi.Badge
   alias BadgerApi.Badge.Topics
   alias BadgerApi.Accounts
+  import BadgerApi.Factory
   alias BadgerApi.Context
   alias BadgerApi.Publications
+  import BadgerApi.Factory
+  import Recase, only: [to_title: 1]
 
   @create_attrs %{
     description: "some description",
@@ -56,7 +59,7 @@ defmodule BadgerApiWeb.TopicsControllerTest do
       put_req_header(conn, "accept", "application/json")
       |> put_req_header("authorization", "bearer: " <> token)
 
-    {:ok, conn: conn, writer: writer}
+    {:ok, conn: conn, writer: writer, title: "Most Popular Topic"}
   end
 
   describe "index" do
@@ -76,7 +79,7 @@ defmodule BadgerApiWeb.TopicsControllerTest do
       assert %{
                "id" => id,
                "description" => "some description",
-               "title" => "some title"
+               "title" => "Some Title"
              } = json_response(conn, 200)["data"]
     end
 
@@ -101,7 +104,7 @@ defmodule BadgerApiWeb.TopicsControllerTest do
       assert %{
                "id" => id,
                "description" => "some updated description",
-               "title" => "some updated title",
+               "title" => "Some Updated Title",
                "slug" => slug
              } = json_response(conn, 200)["data"]
     end
@@ -143,6 +146,18 @@ defmodule BadgerApiWeb.TopicsControllerTest do
       conn = post(conn, Routes.topics_path(conn, :follow_topics, topics.slug))
       assert response(conn, 201)
     end
+  end
+
+  describe "organize topics by popularity" do
+    setup [:organize_topics_fixture]
+    @tag :to
+    test "Organize topics by popularity", %{conn: conn} do
+      conn = get(conn, Routes.topics_path(conn, :index_by_popularity))
+      assert response(conn, 200)
+
+    end
+
+
   end
 
   describe "following topics" do
@@ -209,5 +224,29 @@ defmodule BadgerApiWeb.TopicsControllerTest do
       Publications.create_articles(Map.put(@third_story_attrs, :writer_id, writer.id))
 
     {:ok, articles: [articles, other_articles], third_articles: third_articles}
+  end
+
+  defp organize_topics_fixture(%{title: title}) do
+    universal_topic = build(:topics_map, title: title)
+
+    Enum.map(
+      build_list(10, :articles_map,
+        categories: build_list(5, :topics_map) |> convert_to_list,
+        writer_id: insert(:writer).id
+      ),
+      &Publications.create_articles/1
+    )
+
+    Enum.map(
+      build_list(100, :articles_map,
+        categories: [universal_topic] |> convert_to_list,
+        writer_id: insert(:writer).id
+      ),
+      &Publications.create_articles/1
+    )
+  end
+
+  defp convert_to_list(topics_list) do
+    Enum.map(topics_list, & &1.title)
   end
 end

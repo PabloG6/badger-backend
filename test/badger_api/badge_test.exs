@@ -7,6 +7,9 @@ defmodule BadgerApi.BadgeTest do
     alias BadgerApi.Badge.Topics
     alias BadgerApi.Accounts
     alias BadgerApi.Publications
+    import Recase
+
+    import BadgerApi.Factory
 
     @valid_attrs %{description: "some description", title: "some title"}
     @update_attrs %{description: "some updated description", title: "some updated title"}
@@ -75,7 +78,7 @@ defmodule BadgerApi.BadgeTest do
     test "create_topics/1 with valid data creates a topics" do
       assert {:ok, %Topics{} = topics} = Badge.create_topics(@valid_attrs)
       assert topics.description == "some description"
-      assert topics.title == "some title"
+      assert topics.title == "some title" |> to_title
     end
 
     test "create_topics/1 with invalid data returns error changeset" do
@@ -86,7 +89,7 @@ defmodule BadgerApi.BadgeTest do
       topics = topics_fixture()
       assert {:ok, %Topics{} = topics} = Badge.update_topics(topics, @update_attrs)
       assert topics.description == "some updated description"
-      assert topics.title == "some updated title"
+      assert topics.title == "some updated title" |> to_title
     end
 
     test "update_topics/2 with invalid data returns error changeset" do
@@ -112,6 +115,40 @@ defmodule BadgerApi.BadgeTest do
       {:ok, articles, _writer, _third_articles} = filter_articles()
 
       assert Enum.map(articles, & &1.id) == Enum.map(Badge.filter_articles!(topic.slug), & &1.id)
+    end
+
+    @tag :list_topics_by_popularity
+    test "list_topics_by_popularity/1 returns a list of topics grouped and ordered alphabetically" do
+      topics_list = organize_topics_fixture("Most Popular Topic")
+      # check if frirst 10 topics are most-popular-topic
+      # Enum.map(topics_list,
+      # fn topic ->
+
+      # end)
+    end
+
+    def organize_topics_fixture(title) do
+      universal_topic = build(:topics_map, title: title)
+
+      Enum.map(
+        build_list(10, :articles_map,
+          categories: build_list(5, :topics_map) |> convert_to_list,
+          writer_id: insert(:writer).id
+        ),
+        &Publications.create_articles/1
+      )
+
+      Enum.map(
+        build_list(100, :articles_map,
+          categories: [universal_topic] |> convert_to_list,
+          writer_id: insert(:writer).id
+        ),
+        &Publications.create_articles/1
+      )
+    end
+
+    defp convert_to_list(topics_list) do
+      Enum.map(topics_list, & &1.title)
     end
   end
 end

@@ -5,7 +5,9 @@ defmodule BadgerApiWeb.Router do
     plug Corsica,
       origins: "*",
       allow_headers: :all,
+      allow_methods: :all,
       allow_credentials: true
+
     plug :accepts, ["json"]
     plug :fetch_session
   end
@@ -36,6 +38,7 @@ defmodule BadgerApiWeb.Router do
     delete "/topics/:slug/follow", TopicsController, :unfollow_topics
     get "/topics/subscriptions/following", TopicsController, :following
     get "/topics/is-following/:slug", TopicsController, :is_following?
+    get "/topics/filter/most-popular", TopicsController, :index_by_popularity
   end
 
   scope "/api", BadgerApiWeb do

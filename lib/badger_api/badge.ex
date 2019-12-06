@@ -7,6 +7,7 @@ defmodule BadgerApi.Badge do
   alias BadgerApi.Repo
   alias BadgerApi.Publications.Articles
   alias BadgerApi.Badge.Topics
+  alias BadgerApi.Context.CategoriesArticles
   alias Exsolr
 
   @doc """
@@ -20,6 +21,16 @@ defmodule BadgerApi.Badge do
   """
   def list_topics(params \\ %{}) do
     from(t in Topics) |> Repo.paginate(params)
+  end
+
+  def index_by_popularity(params \\ %{}) do
+    from(t in Topics,
+      left_join: c in CategoriesArticles,
+      on: c.categories_id == t.id,
+      group_by: t.id,
+      order_by: [desc: count(c.id)]
+    )
+    |> Repo.paginate(params)
   end
 
   @doc """

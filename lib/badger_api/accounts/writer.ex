@@ -5,6 +5,7 @@ defmodule BadgerApi.Accounts.Writer do
   import Ecto.Query
   alias BadgerApi.Publications.Articles
   alias BadgerApi.Badge.Topics
+  alias Recase
   alias BadgerApi.Accounts.Relationships
   alias BadgerApi.Repo
   alias Exsolr
@@ -67,15 +68,22 @@ defmodule BadgerApi.Accounts.Writer do
       Enum.map(
         writes_about_topics,
         &%{
-          title: &1,
+          title: &1 |> Recase.to_title(),
           slug: Slug.slugify(&1),
           updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
           inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
         }
       )
 
+    title_case_topics = Enum.map(writes_about_topics, &Recase.to_title/1)
+    slug_case_topics = Enum.map(writes_about_topics, &Slug.slugify/1)
+
     Repo.insert_all(Topics, interests_map, on_conflict: :nothing)
-    Repo.all(from topic in Topics, where: topic.title in ^writes_about_topics)
+
+    Repo.all(
+      from topic in Topics,
+        where: topic.title in ^title_case_topics or topic.slug in ^slug_case_topics
+    )
   end
 
   defp downcase_email(%Ecto.Changeset{valid?: true, changes: %{email: email}} = changeset) do
@@ -87,7 +95,7 @@ defmodule BadgerApi.Accounts.Writer do
   defp downcase_username(
          %Ecto.Changeset{valid?: true, changes: %{username: username}} = changeset
        ) do
-    change(changeset, %{username: String.downcase(username)})
+    change(changeset, %{username: username})
   end
 
   defp downcase_username(changeset), do: changeset

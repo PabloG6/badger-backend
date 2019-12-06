@@ -5,7 +5,8 @@ defmodule BadgerApi.Accounts do
 
   import Ecto.Query, warn: false
   alias BadgerApi.Repo
-
+  alias Recase
+  alias Slugify
   alias BadgerApi.Accounts.Writer
   alias BadgerApi.Context.WritesAboutTopics
   alias BadgerApi.Badge.Topics
@@ -208,13 +209,16 @@ defmodule BadgerApi.Accounts do
   end
 
   def list_writers_by_interest(interests, params \\ %{}) do
+    interests_title_case = Enum.map(interests, &Recase.to_title/1)
+    interests_slugify_case = Enum.map(interests, &Slug.slugify/1)
+
     query =
       from w in Writer,
         join: wt in WritesAboutTopics,
         join: topics in Topics,
         on: wt.writer_id == w.id,
         on: topics.id == wt.topics_id,
-        where: topics.title in ^interests or topics.slug in ^interests
+        where: topics.title in ^interests_title_case or topics.slug in ^interests_slugify_case
 
     Repo.paginate(query, params)
   end

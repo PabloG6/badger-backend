@@ -35,7 +35,8 @@ defmodule BadgerApi.MixProject do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", "factory"]
+  defp elixirc_paths(:dev), do: ["lib", "factory"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
@@ -63,7 +64,10 @@ defmodule BadgerApi.MixProject do
       {:goth, "~> 1.1.0"},
       {:corsica, "~> 1.1.2"},
       {:arc, "~> 0.11.0"},
-      {:scrivener_ecto, "~> 2.2.0"}
+      {:scrivener_ecto, "~> 2.2.0"},
+      {:faker, "~> 0.13", only: [:test, :dev]},
+      {:recase, "~> 0.5"},
+      {:ex_machina, "~> 2.3", only: [:test, :dev]}
     ]
   end
 

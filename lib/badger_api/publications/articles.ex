@@ -47,14 +47,20 @@ defmodule BadgerApi.Publications.Articles do
       Enum.map(
         categories,
         &%{
-          title: &1,
+          title: &1 |> Recase.to_title(),
           inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
           updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
           slug: Slug.slugify(&1)
         }
       )
 
+    categories_title_case = Enum.map(categories, &Recase.to_title/1)
+    categories_slug_case = Enum.map(categories, &Slug.slugify/1)
     Repo.insert_all(Topics, categories_map, on_conflict: :nothing)
-    Repo.all(from category in Topics, where: category.title in ^categories)
+
+    Repo.all(
+      from category in Topics,
+        where: category.title in ^categories_title_case or category.title in ^categories_slug_case
+    )
   end
 end

@@ -19,6 +19,18 @@ defmodule BadgerApiWeb.TopicsController do
     )
   end
 
+  def index_by_popularity(conn, params) do
+    page = Badge.index_by_popularity(params)
+
+    render(conn, "index.json",
+      topics: page.entries,
+      total_pages: page.total_pages,
+      page_size: page.page_size,
+      page_number: page.page_number,
+      total_entries: page.total_entries
+    )
+  end
+
   def create(conn, %{"topics" => topics_params}) do
     with {:ok, %Topics{} = topics} <- Badge.create_topics(topics_params) do
       conn
@@ -94,7 +106,7 @@ defmodule BadgerApiWeb.TopicsController do
     topics = Badge.get_topics_by_slug!(slug)
 
     with {:ok, %Topics{}} <- Badge.delete_topics(topics) do
-    #  Exsolr.delete_by_id(topics.id)
+      #  Exsolr.delete_by_id(topics.id)
       send_resp(conn, :no_content, "")
     end
   end

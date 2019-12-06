@@ -85,8 +85,8 @@ defmodule BadgerApi.Publications do
     # end
 
     %Articles{}
-         |> Articles.changeset(attrs)
-         |> Repo.insert()
+    |> Articles.changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """
@@ -155,14 +155,14 @@ defmodule BadgerApi.Publications do
         join: sub_topics_query in subquery(subscribed_topics_query),
         on: sub_topics_query.topics_id == article_topics.categories_id
 
-
     query =
       from articles in Articles,
         preload: [:categories, :writer],
         left_join: a in subquery(articles_topics_query),
         left_join: following in subquery(following_query),
-        where: articles.writer_id == following.following_id
-        or articles.writer_id == ^writer_id or a.articles_id == articles.id,
+        where:
+          articles.writer_id == following.following_id or
+            articles.writer_id == ^writer_id or a.articles_id == articles.id,
         order_by: [asc: articles.inserted_at],
         distinct: [articles.id]
 
