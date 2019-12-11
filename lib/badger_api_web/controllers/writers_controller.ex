@@ -30,6 +30,20 @@ defmodule BadgerApiWeb.WritersController do
     )
   end
 
+  def topics_popularity(conn, %{"topics" => topics} = params) do
+    IO.puts "hello world"
+    IO.inspect topics
+    page = Accounts.topics_popularity(topics)
+    render(conn, :index,
+      writer: page.entries,
+
+      page_size: page.page_size,
+      total_entries: page.total_entries,
+      total_pages: page.total_pages,
+      page_number: page.page_number)
+
+  end
+
   def create(conn, %{"writers" => writer_params}) do
     with {:ok, %Writer{} = writer} <- Accounts.create_writer(writer_params) do
       conn

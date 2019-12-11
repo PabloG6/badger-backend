@@ -117,38 +117,8 @@ defmodule BadgerApi.BadgeTest do
       assert Enum.map(articles, & &1.id) == Enum.map(Badge.filter_articles!(topic.slug), & &1.id)
     end
 
-    @tag :list_topics_by_popularity
-    test "list_topics_by_popularity/1 returns a list of topics grouped and ordered alphabetically" do
-      topics_list = organize_topics_fixture("Most Popular Topic")
-      # check if frirst 10 topics are most-popular-topic
-      # Enum.map(topics_list,
-      # fn topic ->
 
-      # end)
-    end
 
-    def organize_topics_fixture(title) do
-      universal_topic = build(:topics_map, title: title)
 
-      Enum.map(
-        build_list(10, :articles_map,
-          categories: build_list(5, :topics_map) |> convert_to_list,
-          writer_id: insert(:writer).id
-        ),
-        &Publications.create_articles/1
-      )
-
-      Enum.map(
-        build_list(100, :articles_map,
-          categories: [universal_topic] |> convert_to_list,
-          writer_id: insert(:writer).id
-        ),
-        &Publications.create_articles/1
-      )
-    end
-
-    defp convert_to_list(topics_list) do
-      Enum.map(topics_list, & &1.title)
-    end
   end
 end

@@ -23,6 +23,20 @@ defmodule BadgerApi.Factory do
     }
   end
 
+  def writer_map_factory do
+    name = Faker.Name.name()
+    %{
+      name: name,
+      password: "password",
+      password_hash: Bcrypt.hash_pwd_salt("password"),
+
+      email: sequence(:email, &"#{name |> Recase.to_snake()}#{&1}@email.com"),
+      username: sequence(:username, &"@#{name |> Recase.to_snake}#{&1}"),
+      description: "#{Faker.Lorem.sentence()}",
+      writes_about_topics: for(_ <- 0..4, do: build(:topics))
+
+    }
+  end
   def topics_factory do
     title = sequence(:title,  &"#{Faker.Lorem.word()} #{Faker.Lorem.word()} #{&1}")
     %Topics{

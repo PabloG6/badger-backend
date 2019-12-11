@@ -12,16 +12,280 @@
 
 import BadgerApi.Factory
 alias BadgerApi.Repo
+import Recase, only: [to_title: 1, to_kebab: 1]
+alias BadgerApi.{Badge}
+import BadgerApi.Publications, only: [create_articles: 1]
 alias BadgerApi.Badge.Topics
 
-topics = [
+topics_list = [
+  "App Design",
+  "Architecture",
+  "Amplified Sounds",
+  "Agriculture",
+  "Agri-Tech",
+  "Agriculture Tech",
+  "Apple",
+  "Android",
+  "Archery",
+  "Art Galleries",
+  "Art Society",
+  "Art Books",
+  "Artistic Methodlogy",
+  "Algorithm",
+  "Astronomy",
+  "Astrology",
+  "Accounting",
+  "Aging",
+  "Advice",
+  "Argentina",
+  "Audio",
+  "API",
+  "Animation",
+  "Artificial Intelligence",
+  "Apple Watch",
+  "Arte",
+  "Airlines",
+  "Alcohol",
+  "Algorithms",
+  "AngularJs",
+  "Angular 8",
+  "Beer",
+  "Bible",
+  "Big Data",
+  "Bikes",
+  "Birthday",
+  "Bitcoin",
+  "Black Women",
+  "BlackLivesMatter",
+  "Blockchain",
+  "Blog",
+  "Blogger",
+  "Blogging",
+  "Body Image",
+  "Bodybuilding",
+  "Book",
+  "Book Review",
+  "Books",
+  "Boston",
+  "Bots",
+  "Brand Strategy",
+  "Branding",
+  "Brazil",
+  "Brexit",
+  "Business",
+  "Business Strategy",
+  "Cartoon",
+  "Change",
+  "Challenge",
+  "Charity",
+  "Chatbots",
+  "Chicago",
+  "Childhood",
+  "Children",
+  "China",
+  "Chinese",
+  "Christianity",
+  "Christmas",
+  "Church",
+  "Cinema",
+  "Cities",
+  "Cleaning",
+  "Climate Change",
+  "Clothing",
+  "Cloud Computing",
+  "Coaching",
+  "Coding",
+  "Coffee",
+  "Collaboration",
+  "Collage",
+  "College Football",
+  "Columbia",
+  "Comics",
+  "Communication",
+  "Community",
+  "Confidence",
+  "Congress",
+  "Dance",
+  "Data",
+  "Data Science",
+  "Data visualation",
+  "Dating",
+  "Death",
+  "Debt",
+  "Descision Making",
+  "Deep Learning",
+  "Democracy",
+  "Design",
+  "Developer",
+  "Devotional",
+  "Diabetes",
+  "Digital Marketing",
+  "Digital Nomads",
+  "Disney",
+  "Diversity",
+  "DIY",
+  "Docker",
+  "Documentary",
+  "Dogs",
+  "Domestic Violence",
+  "eBooks",
+  "Ecommerce",
+  "Economia",
+  "Economics",
+  "Edtech",
+  "Education",
+  "Education Reform",
+  "Email Marketing",
+  "Emotional Intelligence",
+  "Emotions",
+  "Empathy",
+  "Employee Engagement",
+  "Empowerment",
+  "Energy",
+  "Engineering",
+  "English Language",
+  "Entertainment",
+  "Entrepeneur",
+  "Environment",
+  "Equality",
+  "Erotica",
+  "ES6",
+  "Escrita",
+  "Espanol",
+  "Esports",
+  "Essay",
+  "Ethereum",
+  "Ethics",
+  "Europe",
+  "Ethics",
+  "Evolution",
+  "Family",
+  "Faith",
+  "Fantasy",
+  "Fantasy Football",
+  "Fashion",
+  "Fat Burning Foods",
+  "Fatherhood",
+  "Fear",
+  "Featured",
+  "Features",
+  "Feedback",
+  "Feelings",
+  "Feminism",
+  "Feminismo",
+  "Festival",
+  "Fiction",
+  "Fiksi Mini",
+  "Fiction",
+  "Film",
+  "Finance",
+  "Forex Trading",
+  "Forex",
+  "Freelance",
+  "Game Development",
+  "Game of Thrones",
+  "Gambling",
+  "Github",
+  "Gender",
+  "Gender Equality",
+  "Gifts",
+  "Goals",
+  "Golang",
+  "God",
+  "Golf",
+  "Government",
+  "Graphic Design",
+  "Gratitude",
+  "Greece",
+  "Grief",
+  "Growing up",
+  "Growth",
+  "Growth Hacking",
+  "Gun Control",
+  "Gun Violence",
+  "Guns",
+  "Gym",
+  "Habit Building",
+  "Habits",
+  "Hackathons",
+  "Hacking",
+  "Haiku",
+  "Hair Salon",
+  "Hairdressing",
+  "Happines",
+  "Hardware",
+  "Harry Potter",
+  "Healing",
+  "Health",
+  "Health Foods",
+  "Health Recipe",
+  "Heartbreak",
+  "Hello World",
+  "Hiking",
+  "history",
+  "Home Improvement",
+  "Humor",
+  "Ideas",
+  "Identity",
+  "Illustration",
+  "Immigration",
+  "Inbound Marketing",
+  "Indonesia",
+  "Inequality",
+  "Interview",
+  "Introvert",
+  "iOS",
+  "IoT",
+  "iPad",
+  "iPhone",
+  "Iran",
+  "Javascript",
+  "Jeremy Corbyn",
+  "Jewelery",
+  "Job Search",
+  "Journalism",
+  "Kanye West",
+  "Kickstarter",
+  "Kids",
+  "Labour Party",
+  "Language Learning",
+  "SEO",
+  "Sports",
+  "Startup",
+  "Success",
+  "Sport",
+  "Software Development",
+  "Social Media",
+  "Short Story",
+  "Science",
+  "Mental Health",
+  "Marketing",
+  "Medium",
+  "Motivation",
+  "Movies",
+  "Music",
+  "News",
+  "Parenting",
+  "Podcasts",
+  "Poetry",
+  "Productivity",
+  "Productivity apps",
+  "Venture Capitalism",
+  "Teaching",
+  "Twitter",
+  "Travel",
+
   "tech",
   "lifestyle",
   "money",
   "politics",
   "food",
   "fashion",
-  "business",
+  "Footwear",
+  "Shoes",
+  "Fall fashion",
+  "journalism",
+
   "art",
   "music",
   "science",
@@ -48,36 +312,45 @@ topics = [
   "software engineering",
   "ux design",
   "UI Design"
+
+
+]
+
+test_topics_list = [
+  "Apple",
+  "Banana",
+  "Cherries",
 ]
 
 defmodule Seeds do
-  def create_topics(topic_title), do: insert(:topics, title: topic_title)
+  def create_topics(topics_list) do
+   Enum.map(topics_list, &(build(:topics_map, title: &1, slug: to_kebab(&1))))
+   |> Enum.map(&Badge.create_topics/1)
 
-  defp randomize_topics() do
-    repo_topics = Repo.all(Topics)
-    mapify = &%{id: &1.id, title: &1.title, slug: &1.slug, description: &1.description}
-
-    for(
-      _ <- 0..4,
-      do:
-        params_with_assocs(
-          :topics,
-          Enum.at(
-            repo_topics,
-            :rand.uniform(length(repo_topics))
-          )
-          |> mapify.()
-        )
-    )
   end
 
-  defp create_articles(writer) do
-    insert_list(5, :articles, writer: writer, categories: randomize_topics())
+  def bootstrap_articles_from_topics() do
+
+    #get all topics
+    topics_to_list = Badge.list_topics()
+    #funnel topics into an anonymous function to get the title only
+    |> Enum.map(&(&1.title))
+
+    for topic <- topics_to_list do
+      Enum.map(build_list(25, :articles_map,  writer_id: insert(:writer).id, categories: [topic]), &create_articles/1) |> IO.inspect
+    end
   end
 
-  def initialize do
-    Enum.map(insert_list(5, :writer), &create_articles/1)
+  def bootstrap_writers() do
+    writer_list = insert_list(10, :writer, writes_about_topics: [])
+    for writer <- writer_list do
+      build_list(10, :articles_map, writer_id: writer.id, categories: ["makeup", "cryptocurrency", "architecture", "android", "iOS", "angular"])
+      |>Enum.map(&create_articles/1)
+    end
   end
+
+
+
 end
 
-IO.inspect(Seeds.initialize())
+Seeds.bootstrap_writers()

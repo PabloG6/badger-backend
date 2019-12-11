@@ -8,7 +8,6 @@ defmodule BadgerApiWeb.TopicsControllerTest do
   alias BadgerApi.Context
   alias BadgerApi.Publications
   import BadgerApi.Factory
-  import Recase, only: [to_title: 1]
 
   @create_attrs %{
     description: "some description",

@@ -4,7 +4,10 @@ defmodule BadgerApiWeb.WritersControllerTest do
   alias BadgerApi.Accounts
   alias BadgerApi.Accounts.Writer
   # alias BadgerApi.Badge.Topics
-
+  import BadgerApi.Factory
+  alias BadgerApi.Publications
+  alias BadgerApi.Publications.Articles
+  alias BadgerApi.Repo
   @create_attrs %{
     email: "some@email.com",
     name: "some name",
@@ -12,6 +15,8 @@ defmodule BadgerApiWeb.WritersControllerTest do
     username: "@someusername",
     writes_about_topics: ["dragon fruit", "entawak", "figs"]
   }
+
+
 
   @update_attrs %{
     email: "someupdated@email.com",
@@ -28,7 +33,8 @@ defmodule BadgerApiWeb.WritersControllerTest do
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+
+    {:ok, conn: conn}
   end
 
   defp put_profile_image(attrs) do
@@ -181,9 +187,46 @@ defmodule BadgerApiWeb.WritersControllerTest do
     end
   end
 
+  describe "order writers by specific goals" do
+    setup [:sign_in_writers]
+    test "order writers by most popular writers in certain list of topics",  %{conn: conn, topics: topics}do
+      conn = get(conn, Routes.writers_path(conn, :topics_popularity, topics: topics))
+      assert response(conn, 200)
+    end
+  end
   defp create_writers(_) do
     writers = fixture(:writers)
     {:ok, writers: writers}
+  end
+
+  def popularity_topics_fixture() do
+    topics_list = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+    # create 10 writers
+    writers_list = build_list(10, :writer_map, writes_about_topics: []) |> Enum.map(&Accounts.create_writer!/1)
+
+
+    zipped_writers = Enum.zip([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], writers_list)
+    for {index, writer} <- zipped_writers do
+
+      build_list(index, :articles_map, writer_id: writer.id, categories: [Enum.at(topics_list, index)])
+      |> Enum.map(&Publications.create_articles/1)
+
+    end
+    articles_list = Repo.all(Publications.Articles) |> Repo.preload(:categories)
+    {:ok, topics_list,  articles_list, writers_list}
+
+  end
+  defp sign_in_writers(%{conn: conn} = connection) do
+    {:ok, topics, _, ordered_writers} = popularity_topics_fixture()
+    {:ok, writer} = Accounts.create_writer(%{name: "Name Man", username: "@usernameMan", password: "password", email: "usernameman@gmail.com", })
+    {:ok, token, _} = BadgerApi.Auth.Guardian.encode_and_sign(writer)
+
+    conn =
+      put_req_header(conn, "accept", "application/json")
+      |> put_req_header("authorization", "bearer: " <> token)
+      {:ok, conn: conn}
+
+      {:ok, conn: conn, topics: topics, ordered_writers: ordered_writers}
   end
 
   defp create_writers_with_interests(_) do

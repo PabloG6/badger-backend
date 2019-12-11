@@ -94,6 +94,33 @@ defmodule BadgerApi.Accounts do
     %Writer{} |> Writer.changeset(attrs) |> Repo.insert()
   end
 
+  def create_writer!(attrs \\ %{}) do
+    # case %Writer{}
+    #      |> Writer.changeset(attrs)
+    #      |> Repo.insert() do
+    #   {:ok, writer} = response ->
+    #     %{
+    #       name: writer.name,
+    #       username: writer.username,
+    #       id: writer.id,
+    #       email: writer.email,
+    #       _childDocuments_:
+    #         Enum.map(writer.writes_about_topics, &%{title: &1.title, slug: &1.slug})
+    #     }
+    #     |> Exsolr.add()
+
+    #     response
+
+    #   {:error, _} = error ->
+    #     error
+
+    #   error ->
+    #     error
+    # end
+
+    %Writer{} |> Writer.changeset(attrs) |> Repo.insert!()
+  end
+
   @doc """
   Updates a writer.
 
@@ -210,7 +237,7 @@ defmodule BadgerApi.Accounts do
 
   def list_writers_by_interest(interests, params \\ %{}) do
     interests_title_case = Enum.map(interests, &Recase.to_title/1)
-    interests_slugify_case = Enum.map(interests, &Slug.slugify/1)
+    interests_slugify_case = Enum.map(interests, &Recase.to_kebab/1)
 
     query =
       from w in Writer,
@@ -223,12 +250,27 @@ defmodule BadgerApi.Accounts do
     Repo.paginate(query, params)
   end
 
+  def topics_popularity(topics, params \\ %{}) do
+    # writers that write the most articles in a specific category
+    topics_title_case = Enum.map(topics, &Recase.to_title/1)
+    topics_slug_case = Enum.map(topics, &Recase.to_kebab/1)
+
+    query = from w in Writer,
+      left_join: a in assoc(w, :articles),
+      left_join: c in assoc(a, :categories),
+      where: c.title in ^topics_title_case or  c.slug in ^topics_slug_case,
+      order_by: [desc: count(c.id)],
+      group_by: w.id
+
+    Repo.paginate(query, params)
+  end
+
   @doc """
   Follow a user.
 
   ## Examples
 
-      iex> follow(%{follower_id: writer_id, following_id: other_writer_id})
+      iex follow(%{follower_id: writer_id, following_id: other_writer_id})
       {:ok, %Relationships{}}
 
       iex> follow(%{follower_id: bad_writer_id, following_id: other_writer_id})

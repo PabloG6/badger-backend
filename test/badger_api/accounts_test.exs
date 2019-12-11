@@ -1,8 +1,9 @@
 defmodule BadgerApi.AccountsTest do
   use BadgerApi.DataCase
-
-  alias BadgerApi.Accounts
+  import BadgerApi.Factory
+  alias BadgerApi.{Accounts, Publications}
   alias BadgerApi.Badge
+
 
   describe "writers" do
     alias BadgerApi.Accounts.Writer
@@ -192,6 +193,33 @@ defmodule BadgerApi.AccountsTest do
       {first_writer, second_writer, relationship} = relationships_fixture(:relationships)
       relationship_check = Accounts.is_following?(first_writer.id, second_writer.id)
       assert relationship == relationship_check
+    end
+  end
+  @tag :popular
+  describe "popularity of topics search" do
+    def popularity_topics_fixture() do
+      topics_list = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+      # create 10 writers
+      writers_list = build_list(10, :writer_map, writes_about_topics: []) |> Enum.map(&Accounts.create_writer!/1)
+
+
+      zipped_writers = Enum.zip([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], writers_list)
+      for {index, writer} <- zipped_writers do
+
+        build_list(index, :articles_map, writer_id: writer.id, categories: [Enum.at(topics_list, index)])
+        |> Enum.map(&Publications.create_articles/1)
+
+      end
+      articles_list = Repo.all(Publications.Articles) |> Repo.preload(:categories)
+      {:ok, topics_list,  articles_list, writers_list}
+
+    end
+    test "request writers by order of most popular works" do
+      {:ok, topics, _, writers} = popularity_topics_fixture()
+      ordered_writers = Accounts.topics_popularity(topics)
+      assert Enum.reverse(writers) |> Enum.map(&(&1.id)) == ordered_writers.entries |> Enum.map(&(&1.id))
+
+
     end
   end
 end

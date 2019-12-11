@@ -81,6 +81,8 @@ defmodule BadgerApi.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.seed": ["run priv/repo/seeds.exs"],
+
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end

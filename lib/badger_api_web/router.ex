@@ -38,7 +38,7 @@ defmodule BadgerApiWeb.Router do
     delete "/topics/:slug/follow", TopicsController, :unfollow_topics
     get "/topics/subscriptions/following", TopicsController, :following
     get "/topics/is-following/:slug", TopicsController, :is_following?
-    get "/topics/filter/most-popular", TopicsController, :index_by_popularity
+    get "/topics/filter/popularity", TopicsController, :index_by_popularity
   end
 
   scope "/api", BadgerApiWeb do
@@ -48,6 +48,7 @@ defmodule BadgerApiWeb.Router do
   scope "/api", BadgerApiWeb do
     pipe_through [:api]
     get "/writers/interests", WritersController, :list_writers_by_interest
+    get "/writers/popularity/topics", WritersController, :topics_popularity
   end
 
   scope "/api", BadgerApiWeb do
