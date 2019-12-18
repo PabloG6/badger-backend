@@ -337,7 +337,7 @@ defmodule Seeds do
     |> Enum.map(&(&1.title))
 
     for topic <- topics_to_list do
-      Enum.map(build_list(25, :articles_map,  writer_id: insert(:writer).id, categories: [topic]), &create_articles/1) |> IO.inspect
+      Enum.map(build_list(25, :articles_map,  writer_id: insert(:writer).id, categories: [topic]), &create_articles/1)
     end
   end
 

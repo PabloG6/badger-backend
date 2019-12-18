@@ -142,6 +142,7 @@ defmodule BadgerApi.Publications do
   [%Articles{}...]
   """
   def list_feed_articles(writer_id, params \\ %{}) do
+    IO.inspect params
     following_query =
       from relationship in Relationships,
         where: relationship.follower_id == ^writer_id

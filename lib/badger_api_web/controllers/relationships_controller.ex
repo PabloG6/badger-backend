@@ -58,7 +58,6 @@ defmodule BadgerApiWeb.RelationshipsController do
 
   def delete(conn, %{"subject_id" => unfollow_id}) do
     writer = Guardian.Plug.current_resource(conn)
-    IO.puts(unfollow_id)
 
     with {:ok, _} <- Accounts.unfollow(writer.id, unfollow_id) do
       send_resp(conn, :no_content, "")

@@ -2,22 +2,28 @@ defmodule BadgerApiWeb.WritersView do
   use BadgerApiWeb, :view
   alias BadgerApiWeb.WritersView
   alias BadgerApi.Repo
+  alias BadgerApi.{Accounts.Relationships}
+  import Ecto.Query, only: [from: 2]
 
-  def render("index.json", %{writer: writers}) do
-    %{data: render_many(writers, WritersView, "writers.json")}
+  def render("index.json", %{writer: writers, conn_writer: conn_writer}) do
+    %{data: render_many(writers, WritersView, "writers.json", conn_writer: conn_writer)}
   end
+
 
   def render("index.json", %{
         writer: writers,
         page_size: page_size,
+        conn_writer: conn_writer,
         page_number: page_number,
         total_pages: total_pages,
         total_entries: total_entries
       }) do
+
     %{
-      data: render_many(writers, WritersView, "writers.json"),
+      data: render_many(writers, WritersView, "writers.json", conn_writer: conn_writer),
       page_size: page_size,
       page_number: page_number,
+      conn_writer: conn_writer,
       total_pages: total_pages,
       total_entrie: total_entries
     }
@@ -27,7 +33,8 @@ defmodule BadgerApiWeb.WritersView do
     %{data: render_one(writers, WritersView, "writers.json")}
   end
 
-  def render("writers.json", %{writers: writer}) do
+  def render("writers.json", %{writers: writer, conn_writer: conn_writer} = _params) do
+
     writer = writer |> Repo.preload(:writes_about_topics)
 
     writes_about_topics =
@@ -42,6 +49,7 @@ defmodule BadgerApiWeb.WritersView do
       username: writer.username,
       name: writer.name,
       email: writer.email,
+      following: Repo.exists?(from r in Relationships, where: r.follower_id == ^conn_writer.id and r.following_id == ^writer.id),
       writes_about_topics: writes_about_topics
     }
   end

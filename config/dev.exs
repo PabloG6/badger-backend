@@ -7,7 +7,8 @@ config :badger_api, BadgerApi.Repo,
   database: "badger_api_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 20,
+  timeout: 100_000
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

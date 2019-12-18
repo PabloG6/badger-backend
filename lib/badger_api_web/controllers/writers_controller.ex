@@ -8,22 +8,30 @@ defmodule BadgerApiWeb.WritersController do
 
   def index(conn, params) do
     page = Accounts.list_writers(params)
-
+    writer = Guardian.Plug.current_resource(conn)
     render(conn, :index,
       writer: page.entries,
       page_size: page.page_size,
+      conn_writer: writer,
       total_entries: page.total_entries,
       total_pages: page.total_pages,
       page_number: page.page_number
     )
   end
 
+  def refresh_token(conn, params) do
+    writer = Guardian.Plug.current_resource(conn)
+    #TODO fix this to do an authentication check or something idk
+    render(conn, :show, writer: writer)
+  end
+
   def list_writers_by_interest(conn, %{"interests" => interests} = params) do
     page = Accounts.list_writers_by_interest(interests)
-
+    writer = Guardian.Plug.current_resource(conn)
     render(conn, :index,
       writer: page.entries,
       page_size: page.page_size,
+      conn_writer: writer,
       total_entries: page.total_entries,
       total_pages: page.total_pages,
       page_number: page.page_number
@@ -31,12 +39,13 @@ defmodule BadgerApiWeb.WritersController do
   end
 
   def topics_popularity(conn, %{"topics" => topics} = params) do
-    IO.puts "hello world"
-    IO.inspect topics
+
     page = Accounts.topics_popularity(topics)
+    writer = Guardian.Plug.current_resource(conn)
+    IO.inspect writer
     render(conn, :index,
       writer: page.entries,
-
+      conn_writer: writer,
       page_size: page.page_size,
       total_entries: page.total_entries,
       total_pages: page.total_pages,
