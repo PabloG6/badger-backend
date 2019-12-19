@@ -32,11 +32,9 @@ defmodule BadgerApiWeb.ArticlesView do
   end
 
   def render("articles.json", %{articles: articles}) do
-    articles = articles |> Repo.preload([:writer, :categories])
-    writer = &%{name: &1.name, username: &1.username, email: &1.email, avatar: &1.avatar}
-
+    writer = &%{name: &1.name, username: &1.username,  avatar: &1.avatar}
     categories = fn categories ->
-      Enum.map(categories, &%{title: &1.title, description: &1.description, slug: &1.slug})
+      Enum.map(categories, &%{title: &1.title, slug: &1.slug})
     end
 
     %{
@@ -44,8 +42,8 @@ defmodule BadgerApiWeb.ArticlesView do
       title: articles.title,
       content: articles.content,
       description: articles.description,
-      writer: writer.(articles.writer),
-      categories: categories.(articles.categories)
+       writer: writer.(articles.writer),
+       categories: categories.(articles.categories)
     }
   end
 end

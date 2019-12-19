@@ -142,30 +142,49 @@ defmodule BadgerApi.Publications do
   [%Articles{}...]
   """
   def list_feed_articles(writer_id, params \\ %{}) do
-    IO.inspect params
-    following_query =
-      from relationship in Relationships,
-        where: relationship.follower_id == ^writer_id
+    # following_query =
+    #   from relationship in Relationships,
+    #     where: relationship.follower_id == ^writer_id
 
-    subscribed_topics_query =
-      from interested_in_topics in InterestedinTopics,
-        where: interested_in_topics.writer_id == ^writer_id
+    # subscribed_topics_query =
+    #   from interested_in_topics in InterestedinTopics,
+    #     where: interested_in_topics.writer_id == ^writer_id
 
-    articles_topics_query =
-      from article_topics in CategoriesArticles,
-        join: sub_topics_query in subquery(subscribed_topics_query),
-        on: sub_topics_query.topics_id == article_topics.categories_id
+    # articles_topics_query =
+    #   from article_topics in CategoriesArticles,
+    #     join: sub_topics_query in subquery(subscribed_topics_query),
+    #     on: sub_topics_query.topics_id == article_topics.categories_id
+
+    # query =
+    #   from articles in Articles,
+    #     left_join: a in subquery(articles_topics_query),
+    #     left_join: following in subquery(following_query),
+    #     where:
+    #       articles.writer_id == following.following_id or
+    #         articles.writer_id == ^writer_id or a.articles_id == articles.id,
+    #     order_by: [asc: articles.inserted_at],
+    #     distinct: [articles.id]
 
     query =
-      from articles in Articles,
+      from(articles in Articles,
         preload: [:categories, :writer],
-        left_join: a in subquery(articles_topics_query),
-        left_join: following in subquery(following_query),
-        where:
-          articles.writer_id == following.following_id or
-            articles.writer_id == ^writer_id or a.articles_id == articles.id,
-        order_by: [asc: articles.inserted_at],
+        left_join: r in Relationships,
+        on: r.follower_id == ^writer_id,
+
+        left_join: t in InterestedinTopics,
+        on: t.writer_id == ^writer_id,
+        left_join: ac in CategoriesArticles,
+        on: t.topics_id == ac.categories_id,
+        where: articles.writer_id == r.following_id or
+        articles.writer_id == ^writer_id,
+        or_where: ac.articles_id == articles.id,
+        order_by: [desc: articles.inserted_at],
+        select: [:id, :title, :description, :cover_photo, :writer_id, categories: [:id, :slug, :title], writer: [:username, :name, :avatar]],
         distinct: [articles.id]
+        )
+
+
+
 
     Repo.paginate(query, params)
   end
